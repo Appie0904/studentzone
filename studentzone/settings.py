@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     
+    # SAML Authentication
+    'djangosaml2',
+    
     # Custom apps
     'core',
     'communities',
@@ -139,9 +142,90 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Login/Logout URLs
-LOGIN_URL = '/login/'
+LOGIN_URL = '/saml2/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Simple SAML Configuration for Development
+SAML_CONFIG = {
+    'debug': DEBUG,
+    'xmlsec_binary': None,
+    'entityid': 'http://127.0.0.1:8000/saml2/metadata/',
+    'description': 'StudentZone - Development',
+    'service': {
+        'sp': {
+            'name': 'StudentZone',
+            'endpoints': {
+                'assertion_consumer_service': [
+                    ('http://127.0.0.1:8000/saml2/acs/', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'),
+                ],
+                'single_logout_service': [
+                    ('http://127.0.0.1:8000/saml2/ls/', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                ],
+            },
+            'name_id_format': 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+            'authn_requests_signed': False,
+            'want_assertions_signed': False,
+            'want_response_signed': False,
+            'want_assertions_or_response_signed': False,
+            'want_name_id': True,
+            'want_attribute_statement': True,
+            'want_digest': False,
+            'want_signature_validation': False,
+            'attribute_map': {
+                'uid': 'username',
+                'mail': 'email',
+                'cn': 'first_name',
+                'sn': 'last_name',
+                'schacHomeOrganization': 'university',
+                'schacPersonalUniqueCode': 'student_id',
+            },
+        },
+    },
+    'key_file': None,
+    'cert_file': None,
+    'encryption_keypairs': [],
+    'valid_for': 24,
+    'metadata': {
+        'local': [],
+        'remote': [
+            {
+                'url': 'https://metadata.surfconext.nl/entities',
+                'cert': None,
+            },
+        ],
+    },
+}
+
+# SAML IdP Configuration for Development
+SAML_IDP_CONFIG = {
+    'default': {
+        'entityid': 'https://test.surfconext.nl',
+        'description': 'Test SurfConext IdP',
+        'service': {
+            'idp': {
+                'name': 'Test SurfConext',
+                'endpoints': {
+                    'single_sign_on_service': [
+                        ('https://test.surfconext.nl/sso/', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                    ],
+                    'single_logout_service': [
+                        ('https://test.surfconext.nl/slo/', 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'),
+                    ],
+                },
+                'name_id_format': 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+            },
+        },
+        'key_file': None,
+        'cert_file': None,
+    },
+}
+
+# SAML Authentication Backend
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'core.saml_backend.SurfConextSaml2Backend',
+)
 
 # Messages
 from django.contrib.messages import constants as messages

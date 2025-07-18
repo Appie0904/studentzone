@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SAML Test - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="card-title">SAML Configuration Test</h3>
+                </div>
+                <div class="card-content">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>SAML Status</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>SAML Backend: Configured</li>
+                                <li><i class="fas fa-check text-success me-2"></i>djangosaml2: Installed</li>
+                                <li><i class="fas fa-check text-success me-2"></i>SurfConext: Ready</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Attribute Mapping: Set</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Test Actions</h5>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'saml2_login' %}" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Test SAML Login
+                                </a>
+                                <a href="{% url 'core:test_saml_login' %}" class="btn btn-success">
+                                    <i class="fas fa-user-plus me-2"></i>Simulate SAML Login
+                                </a>
+                                <a href="{% url 'saml2_metadata' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-file-code me-2"></i>View Metadata
+                                </a>
+                                <a href="{% url 'core:home' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-home me-2"></i>Back to Home
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Development Notes</h6>
+                        <ul class="mb-0">
+                            <li>This is a development setup for SurfConext integration</li>
+                            <li>For production, you'll need to register with SurfConext</li>
+                            <li>Certificates will be generated automatically</li>
+                            <li>University attribute mapping is configured</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

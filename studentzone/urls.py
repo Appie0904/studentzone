@@ -23,7 +23,10 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Authentication URLs
+    # SAML Authentication URLs
+    path('saml2/', include('djangosaml2.urls')),
+    
+    # Legacy Authentication URLs (for fallback)
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     # Logout handled by core app
     # Note: register and settings views need to be implemented properly

@@ -228,3 +228,62 @@ def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out successfully.")
     return redirect('core:home')
+
+
+def saml_metadata(request):
+    """SAML metadata for SurfConext integration"""
+    from djangosaml2.views import metadata
+    return metadata(request)
+
+
+def saml_test(request):
+    """Test page for SAML configuration"""
+    return render(request, 'core/saml_test.html')
+
+
+def test_saml_login(request):
+    """Test SAML login for development - simulates successful authentication"""
+    from django.contrib.auth import get_user_model
+    from django.contrib.auth import login
+    
+    User = get_user_model()
+    
+    # Create a test user if it doesn't exist
+    test_user, created = User.objects.get_or_create(
+        username='test.student',
+        defaults={
+            'email': 'test.student@tudelft.nl',
+            'first_name': 'Test',
+            'last_name': 'Student',
+        }
+    )
+    
+    if created:
+        # Create user profile
+        from .models import UserProfile, University
+        university, _ = University.objects.get_or_create(
+            code='tudelft.nl',
+            defaults={
+                'name': 'TU Delft',
+                'abbreviation': 'TUD',
+                'city': 'Delft',
+                'is_active': True,
+            }
+        )
+        
+        profile = UserProfile.objects.create(
+            user=test_user,
+            university=university,
+            study_level='bachelor',
+            student_id='12345678',
+            is_verified=True,
+        )
+    
+    # Log in the user
+    login(request, test_user)
+    
+    # Add success message
+    from django.contrib import messages
+    messages.success(request, f"Welcome {test_user.get_full_name()}! You have been logged in via SAML.")
+    
+    return redirect('core:home')

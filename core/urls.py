@@ -13,4 +13,7 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('test-dropdown/', views.test_dropdown, name='test_dropdown'),
     path('logout/', views.logout_view, name='logout'),
+    path('saml/metadata/', views.saml_metadata, name='saml_metadata'),
+    path('saml/test/', views.saml_test, name='saml_test'),
+    path('saml/test-login/', views.test_saml_login, name='test_saml_login'),
 ] 

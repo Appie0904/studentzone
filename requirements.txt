@@ -4,6 +4,11 @@
 # Django Framework
 Django==5.2.4
 
+# SAML Authentication for SurfConext
+djangosaml2==1.5.9
+pysaml2==9.0.0
+cryptography==41.0.7
+
 # Database
 # SQLite is included with Python
 # For production, consider adding: psycopg2-binary==2.9.9

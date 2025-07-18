@@ -7,10 +7,12 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class University(models.Model):
     """Dutch universities and institutions"""
     name = models.CharField(max_length=200)
+    code = models.CharField(max_length=100, unique=True, blank=True, null=True, help_text="SAML organization code (e.g., tudelft.nl)")
     abbreviation = models.CharField(max_length=20, unique=True)
     city = models.CharField(max_length=100)
     website = models.URLField(blank=True)
     logo = models.ImageField(upload_to='university_logos/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
     
     class Meta:
         verbose_name_plural = "Universities"
