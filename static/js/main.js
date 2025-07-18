@@ -286,6 +286,12 @@ function initScrollEffects() {
 // Loading states (add loading class to buttons)
 function initLoadingStates() {
     document.querySelectorAll('button[type="submit"]').forEach(button => {
+        // Skip authentication forms (login, register, etc.)
+        const form = button.closest('form');
+        if (form && (form.action.includes('/login/') || form.action.includes('/register/') || form.action.includes('/logout/'))) {
+            return;
+        }
+        
         button.addEventListener('click', function() {
             this.classList.add('loading');
             this.disabled = true;

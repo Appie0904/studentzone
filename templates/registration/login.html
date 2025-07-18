@@ -21,7 +21,7 @@
                     </div>
                 {% endif %}
 
-                <form method="post">
+                <form method="post" id="login-form">
                     {% csrf_token %}
                     
                     <div class="mb-3">
@@ -49,7 +49,7 @@
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg" id="login-btn">
                             <i class="fas fa-sign-in-alt me-2"></i>Sign In
                         </button>
                     </div>
@@ -102,4 +102,31 @@
     border: none;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Login page loaded');
+    
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    
+    if (loginForm) {
+        console.log('Login form found');
+        
+        loginForm.addEventListener('submit', function(e) {
+            console.log('Login form submitted');
+            // Don't prevent default - let it submit normally
+        });
+    }
+    
+    if (loginBtn) {
+        console.log('Login button found');
+        
+        loginBtn.addEventListener('click', function(e) {
+            console.log('Login button clicked');
+            // Don't prevent default - let it submit normally
+        });
+    }
+});
+</script>
 {% endblock %} 
