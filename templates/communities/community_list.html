@@ -3,24 +3,72 @@
 {% block title %}Communities - StudentZone{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1><i class="fas fa-users me-2"></i>Communities</h1>
-            {% if user.is_authenticated %}
-                <a href="{% url 'communities:community_create' %}" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i>Create Community
-                </a>
-            {% endif %}
+<!-- Hero Section for Communities -->
+<section class="communities-hero py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <i class="fas fa-users me-3"></i>
+                        Discover Communities
+                    </h1>
+                    <p class="hero-subtitle">
+                        Connect with students from your field, share knowledge, and collaborate on exciting projects. Join communities that match your interests and academic goals.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ total_communities|default:"0" }}</span>
+                            <span class="stat-label">Communities</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ total_members|default:"0" }}</span>
+                            <span class="stat-label">Members</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ total_discussions|default:"0" }}</span>
+                            <span class="stat-label">Discussions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-graphic">
+                    <div class="floating-cards">
+                        <div class="floating-card card-1">
+                            <i class="fas fa-code"></i>
+                            <span>Computer Science</span>
+                        </div>
+                        <div class="floating-card card-2">
+                            <i class="fas fa-flask"></i>
+                            <span>Engineering</span>
+                        </div>
+                        <div class="floating-card card-3">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Business</span>
+                        </div>
+                        <div class="floating-card card-4">
+                            <i class="fas fa-palette"></i>
+                            <span>Design</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+</section>
 
-        <!-- Filters -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="study_field" class="form-label">Study Field</label>
-                        <select name="study_field" id="study_field" class="form-select">
+<!-- Search and Filter Section -->
+<section class="search-section py-4">
+    <div class="container">
+        <div class="search-card">
+            <form method="GET" class="search-form">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-4 col-md-6">
+                        <label for="study_field" class="form-label">
+                            <i class="fas fa-graduation-cap me-2"></i>Study Field
+                        </label>
+                        <select name="study_field" id="study_field" class="form-select form-select-lg">
                             <option value="">All Fields</option>
                             {% for field in study_fields %}
                                 <option value="{{ field.id }}" {% if selected_field == field.id|stringformat:"s" %}selected{% endif %}>
@@ -29,107 +77,665 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label for="search" class="form-label">Search</label>
-                        <input type="text" name="search" id="search" class="form-control" value="{{ search }}" placeholder="Search communities...">
+                    <div class="col-lg-6 col-md-6">
+                        <label for="search" class="form-label">
+                            <i class="fas fa-search me-2"></i>Search Communities
+                        </label>
+                        <div class="search-input-group">
+                            <input type="text" name="search" id="search" class="form-control form-control-lg" value="{{ search }}" placeholder="Search by name, description, or field...">
+                            <button type="submit" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-search"></i>
-                        </button>
+                    <div class="col-lg-2 col-md-12">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'communities:community_create' %}" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-plus me-2"></i>Create
+                            </a>
+                        {% endif %}
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
+    </div>
+</section>
 
-        <!-- Community List -->
+<!-- Communities Content -->
+<section class="communities-content py-5">
+    <div class="container">
         {% if page_obj %}
-            <div class="row">
+            <!-- Community Grid -->
+            <div class="communities-grid">
                 {% for community in page_obj %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{% url 'communities:community_detail' community.pk %}" class="text-decoration-none">
+                    <div class="community-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter|multiply:100 }}">
+                        <div class="card-header">
+                            <div class="community-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="community-meta">
+                                <h3 class="community-name">
+                                    <a href="{% url 'communities:community_detail' community.pk %}">
                                         {{ community.name }}
                                     </a>
-                                </h5>
-                                <p class="card-text text-muted">{{ community.study_field.name }}</p>
-                                <p class="card-text">{{ community.description|truncatewords:20 }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <i class="fas fa-users me-1"></i>{{ community.member_count }} members
-                                    </small>
-                                    <small class="text-muted">
-                                        <i class="fas fa-comments me-1"></i>{{ community.discussion_count }} discussions
-                                    </small>
-                                </div>
+                                </h3>
+                                <span class="community-field">{{ community.study_field.name }}</span>
                             </div>
-                            <div class="card-footer">
+                            <div class="community-status">
                                 {% if user.is_authenticated %}
                                     {% if community in user.community_memberships.all %}
-                                        <span class="badge bg-success">Member</span>
+                                        <span class="status-badge member">
+                                            <i class="fas fa-check me-1"></i>Member
+                                        </span>
                                     {% else %}
-                                        <a href="{% url 'communities:community_join' community.pk %}" class="btn btn-sm btn-outline-primary">
-                                            Join
+                                        <a href="{% url 'communities:community_join' community.pk %}" class="join-btn">
+                                            <i class="fas fa-plus me-1"></i>Join
                                         </a>
                                     {% endif %}
                                 {% endif %}
                             </div>
                         </div>
+                        <div class="card-body">
+                            <p class="community-description">{{ community.description|truncatewords:25 }}</p>
+                            <div class="community-stats">
+                                <div class="stat">
+                                    <i class="fas fa-users"></i>
+                                    <span>{{ community.member_count }} members</span>
+                                </div>
+                                <div class="stat">
+                                    <i class="fas fa-comments"></i>
+                                    <span>{{ community.discussion_count }} discussions</span>
+                                </div>
+                                <div class="stat">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>{{ community.created_at|timesince }} old</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'communities:community_detail' community.pk %}" class="view-btn">
+                                <i class="fas fa-arrow-right me-2"></i>View Community
+                            </a>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
 
-            <!-- Pagination -->
+            <!-- Enhanced Pagination -->
             {% if page_obj.has_other_pages %}
-                <nav aria-label="Community pagination">
-                    <ul class="pagination justify-content-center">
-                        {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
-                                    Previous
-                                </a>
-                            </li>
-                        {% endif %}
-
-                        {% for num in page_obj.paginator.page_range %}
-                            {% if page_obj.number == num %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ num }}</span>
-                                </li>
-                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <div class="pagination-wrapper" data-aos="fade-up">
+                    <nav aria-label="Community pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
-                                        {{ num }}
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                        <i class="fas fa-chevron-left me-1"></i>Previous
                                     </a>
                                 </li>
                             {% endif %}
-                        {% endfor %}
 
-                        {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
-                                    Next
-                                </a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                            {{ num }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                        Next<i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
             {% endif %}
         {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                <h3>No communities found</h3>
-                <p class="text-muted">Try adjusting your search criteria or create a new community.</p>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'communities:community_create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>Create First Community
-                    </a>
-                {% endif %}
+            <!-- Enhanced Empty State -->
+            <div class="empty-state" data-aos="fade-up">
+                <div class="empty-state-content">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h2>No Communities Found</h2>
+                    <p>We couldn't find any communities matching your criteria. Try adjusting your search or be the first to create a community in your field!</p>
+                    
+                    <div class="empty-state-actions">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'communities:community_create' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Create First Community
+                            </a>
+                        {% endif %}
+                        <button class="btn btn-outline-secondary btn-lg" onclick="clearFilters()">
+                            <i class="fas fa-refresh me-2"></i>Clear Filters
+                        </button>
+                    </div>
+                    
+                    <div class="suggested-fields">
+                        <h5>Popular Study Fields</h5>
+                        <div class="field-tags">
+                            <span class="field-tag">Computer Science</span>
+                            <span class="field-tag">Engineering</span>
+                            <span class="field-tag">Business</span>
+                            <span class="field-tag">Design</span>
+                            <span class="field-tag">Medicine</span>
+                            <span class="field-tag">Arts</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>
-</div>
+</section>
+
+<style>
+/* Communities Hero Section */
+.communities-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.communities-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Floating Cards Animation */
+.floating-cards {
+    position: relative;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-card {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 1.5rem;
+    color: white;
+    text-align: center;
+    animation: float 6s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.floating-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.floating-card i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.floating-card span {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.card-1 { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+.card-2 { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 1s; }
+.card-3 { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 2s; }
+.card-4 { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 3s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) translateX(-50%); }
+    50% { transform: translateY(-20px) translateX(-50%); }
+}
+
+/* Search Section */
+.search-section {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.search-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--bg-tertiary);
+}
+
+.search-input-group {
+    position: relative;
+}
+
+.search-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Communities Grid */
+.communities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.community-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--bg-tertiary);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.community-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--bg-gradient);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.community-card:hover::before {
+    transform: scaleX(1);
+}
+
+.community-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.community-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    background: var(--bg-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.community-meta {
+    flex: 1;
+}
+
+.community-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+}
+
+.community-name a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.community-name a:hover {
+    color: var(--primary-color);
+}
+
+.community-field {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.community-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.member {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.join-btn {
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.join-btn:hover {
+    background: var(--primary-dark);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.community-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.community-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.stat i {
+    color: var(--primary-color);
+}
+
+.card-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--bg-tertiary);
+    background: var(--bg-secondary);
+}
+
+.view-btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 15px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.view-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-state-content {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.empty-state-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--bg-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    color: white;
+    font-size: 3rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.empty-state h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.empty-state-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.suggested-fields {
+    margin-top: 3rem;
+}
+
+.suggested-fields h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.field-tags {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.field-tag {
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.field-tag:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Pagination */
+.pagination-wrapper {
+    margin-top: 3rem;
+}
+
+.pagination .page-link {
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.75rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .communities-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .floating-cards {
+        display: none;
+    }
+    
+    .empty-state-actions {
+        flex-direction: column;
+    }
+    
+    .field-tags {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .search-card {
+        padding: 1.5rem;
+    }
+    
+    .community-card {
+        margin: 0 1rem;
+    }
+}
+</style>
+
+<script>
+function clearFilters() {
+    window.location.href = window.location.pathname;
+}
+
+// Add AOS animation library
+document.addEventListener('DOMContentLoaded', function() {
+    // Simple fade-in animation for cards
+    const cards = document.querySelectorAll('.community-card, .empty-state');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
 {% endblock %} 
