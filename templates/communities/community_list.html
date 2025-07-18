@@ -108,7 +108,7 @@
             <!-- Community Grid -->
             <div class="communities-grid">
                 {% for community in page_obj %}
-                    <div class="community-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter|multiply:100 }}">
+                    <div class="community-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}">
                         <div class="card-header">
                             <div class="community-icon">
                                 <i class="fas fa-users"></i>
