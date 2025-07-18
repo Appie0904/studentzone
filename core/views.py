@@ -220,3 +220,8 @@ def contact(request):
 def test_dropdown(request):
     """Test dropdown functionality"""
     return render(request, 'core/test_dropdown.html')
+
+
+def auth_test(request):
+    """Test authentication functionality"""
+    return render(request, 'core/auth_test.html')

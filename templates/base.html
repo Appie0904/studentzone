@@ -91,9 +91,9 @@
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                <form method="post" action="{% url 'logout' %}" style="display: inline;" id="logout-form">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left;">
+                                    <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left;" id="logout-btn">
                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                                     </button>
                                 </form>
