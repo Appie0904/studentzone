@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Communities - StudentZone{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-users me-2"></i>Communities</h1>
+            {% if user.is_authenticated %}
+                <a href="{% url 'communities:community_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create Community
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="study_field" class="form-label">Study Field</label>
+                        <select name="study_field" id="study_field" class="form-select">
+                            <option value="">All Fields</option>
+                            {% for field in study_fields %}
+                                <option value="{{ field.id }}" {% if selected_field == field.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ field.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" name="search" id="search" class="form-control" value="{{ search }}" placeholder="Search communities...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Community List -->
+        {% if page_obj %}
+            <div class="row">
+                {% for community in page_obj %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="{% url 'communities:community_detail' community.pk %}" class="text-decoration-none">
+                                        {{ community.name }}
+                                    </a>
+                                </h5>
+                                <p class="card-text text-muted">{{ community.study_field.name }}</p>
+                                <p class="card-text">{{ community.description|truncatewords:20 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i>{{ community.member_count }} members
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-comments me-1"></i>{{ community.discussion_count }} discussions
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                {% if user.is_authenticated %}
+                                    {% if community in user.community_memberships.all %}
+                                        <span class="badge bg-success">Member</span>
+                                    {% else %}
+                                        <a href="{% url 'communities:community_join' community.pk %}" class="btn btn-sm btn-outline-primary">
+                                            Join
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav aria-label="Community pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                    Previous
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                        {{ num }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_field %}&study_field={{ selected_field }}{% endif %}{% if search %}&search={{ search }}{% endif %}">
+                                    Next
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h3>No communities found</h3>
+                <p class="text-muted">Try adjusting your search criteria or create a new community.</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'communities:community_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Create First Community
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
