@@ -54,21 +54,34 @@ def community_list(request):
 def community_create(request):
     """Create a new community"""
     if request.method == 'POST':
+        print(f"DEBUG: Form submitted with data: {request.POST}")
         form = CommunityForm(request.POST)
+        print(f"DEBUG: Form is valid: {form.is_valid()}")
+        
         if form.is_valid():
-            community = form.save(commit=False)
-            community.created_by = request.user
-            community.save()
-            
-            # Auto-join the creator
-            CommunityMembership.objects.create(
-                user=request.user,
-                community=community,
-                role='admin'
-            )
-            
-            messages.success(request, f'Community "{community.name}" created successfully!')
-            return redirect('communities:community_detail', pk=community.pk)
+            print(f"DEBUG: Form is valid, creating community...")
+            try:
+                community = form.save(commit=False)
+                community.created_by = request.user
+                community.save()
+                
+                # Auto-join the creator
+                CommunityMembership.objects.create(
+                    user=request.user,
+                    community=community,
+                    role='admin'
+                )
+                
+                messages.success(request, f'Community "{community.name}" created successfully!')
+                return redirect('communities:community_detail', pk=community.pk)
+            except Exception as e:
+                print(f"DEBUG: Error creating community: {e}")
+                messages.error(request, f'Error creating community: {str(e)}')
+        else:
+            print(f"DEBUG: Form errors: {form.errors}")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = CommunityForm()
     
