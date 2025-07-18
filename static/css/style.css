@@ -264,6 +264,12 @@ p {
   font-weight: 600;
 }
 
+/* Main Content Spacing */
+main {
+  padding-top: 80px; /* Account for fixed navbar height */
+  min-height: calc(100vh - 80px); /* Ensure full height minus navbar */
+}
+
 /* Hero Section */
 .hero-section {
   background: var(--bg-gradient);
@@ -273,6 +279,7 @@ p {
   position: relative;
   overflow: hidden;
   padding: 8rem 0 4rem 0;
+  margin-top: -80px; /* Compensate for main padding-top */
 }
 
 .hero-section::before {
@@ -799,4 +806,26 @@ footer .navbar-brand {
 footer .navbar-brand i {
   color: var(--primary-light);
   margin-right: 0.5rem;
+} 
+
+/* Main Content Spacing */
+main {
+  padding-top: 80px; /* Account for fixed navbar height */
+  min-height: calc(100vh - 80px); /* Ensure full height minus navbar */
+}
+
+/* Communities Hero Section */
+.communities-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-top: -80px; /* Compensate for main padding-top */
+    padding-top: 120px; /* Add extra padding to account for navbar */
+} 
+
+/* Communities Hero Section Fix */
+.communities-hero {
+    margin-top: -80px !important; /* Compensate for main padding-top */
+    padding-top: 120px !important; /* Add extra padding to account for navbar */
 } 
