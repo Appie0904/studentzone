@@ -279,8 +279,8 @@ def test_saml_login(request):
             is_verified=True,
         )
     
-    # Log in the user
-    login(request, test_user)
+    # Log in the user with the default Django backend
+    login(request, test_user, backend='django.contrib.auth.backends.ModelBackend')
     
     # Add success message
     from django.contrib import messages
@@ -356,8 +356,8 @@ def dev_login(request):
             except UserProfile.DoesNotExist:
                 pass
         
-        # Log in the user
-        login(request, user)
+        # Log in the user with the default Django backend
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         
         # Add success message
         from django.contrib import messages
