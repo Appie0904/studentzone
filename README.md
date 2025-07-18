@@ -6,7 +6,7 @@ StudentZone is a collaborative, cross-university platform designed to unite stud
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Django](https://img.shields.io/badge/Django-5.2.4-green.svg)](https://www.djangoproject.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Development-orange.svg)](https://github.com/Appie0904/studentzone)
 
 ## 🔑 Core Purpose
@@ -236,7 +236,14 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+**Key Points:**
+- ✅ **Free to use, modify, and distribute**
+- ✅ **Must share source code** when distributing modified versions
+- ✅ **Cannot be made proprietary** - derivatives must also be open source
+- ❌ **Cannot be sold commercially** without sharing the source code
+- ❌ **Cannot be integrated into closed-source software**
 
 ## 🙏 Acknowledgments
 
