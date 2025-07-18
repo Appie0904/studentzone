@@ -16,4 +16,5 @@ urlpatterns = [
     path('saml/metadata/', views.saml_metadata, name='saml_metadata'),
     path('saml/test/', views.saml_test, name='saml_test'),
     path('saml/test-login/', views.test_saml_login, name='test_saml_login'),
+    path('dev/login/', views.dev_login, name='dev_login'),
 ] 

@@ -192,7 +192,7 @@ SAML_CONFIG = {
     },
 }
 
-# SAML IdP Configuration for Development
+# Development IdP Configuration (for testing without external IdP)
 SAML_IDP_CONFIG = {
     'default': {
         'entityid': 'https://test.surfconext.nl',
@@ -215,6 +215,11 @@ SAML_IDP_CONFIG = {
         'cert_file': None,
     },
 }
+
+# SAML Settings for Development
+SAML_CSP_HANDLER = ''  # Disable CSP warnings
+SAML_STRICT = False  # More lenient for development
+SAML_DEBUG = True
 
 # SAML Authentication Backend
 AUTHENTICATION_BACKENDS = (

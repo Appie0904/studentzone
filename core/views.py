@@ -287,3 +287,82 @@ def test_saml_login(request):
     messages.success(request, f"Welcome {test_user.get_full_name()}! You have been logged in via SAML.")
     
     return redirect('core:home')
+
+
+def dev_login(request):
+    """Development login view that bypasses SAML for testing"""
+    if request.method == 'POST':
+        # Get form data
+        university_code = request.POST.get('university', 'tudelft.nl')
+        student_name = request.POST.get('student_name', 'Test Student')
+        email = request.POST.get('email', 'test.student@tudelft.nl')
+        student_id = request.POST.get('student_id', '12345678')
+        
+        # Parse student name
+        name_parts = student_name.split(' ', 1)
+        first_name = name_parts[0] if name_parts else 'Test'
+        last_name = name_parts[1] if len(name_parts) > 1 else 'Student'
+        
+        # Generate username from email
+        username = email.split('@')[0]
+        
+        from django.contrib.auth import get_user_model
+        from django.contrib.auth import login
+        
+        User = get_user_model()
+        
+        # Create or get user
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+            }
+        )
+        
+        if created:
+            # Create user profile
+            from .models import UserProfile, University
+            university, _ = University.objects.get_or_create(
+                code=university_code,
+                defaults={
+                    'name': university_code.replace('.nl', '').upper(),
+                    'abbreviation': university_code.split('.')[0].upper(),
+                    'city': 'Unknown',
+                    'is_active': True,
+                }
+            )
+            
+            profile = UserProfile.objects.create(
+                user=user,
+                university=university,
+                study_level='bachelor',
+                student_id=student_id,
+                is_verified=True,
+            )
+        else:
+            # Update existing user
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+            
+            # Update profile
+            try:
+                profile = user.profile
+                profile.student_id = student_id
+                profile.save()
+            except UserProfile.DoesNotExist:
+                pass
+        
+        # Log in the user
+        login(request, user)
+        
+        # Add success message
+        from django.contrib import messages
+        messages.success(request, f"Welcome {user.get_full_name()}! You have been logged in via development SAML simulation.")
+        
+        return redirect('core:home')
+    
+    return render(request, 'core/dev_login.html')

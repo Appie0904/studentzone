@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Development Login - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-code text-warning" style="font-size: 3rem;"></i>
+                        <h2 class="mt-3 mb-2">Development Login</h2>
+                        <p class="text-muted">Simulate SAML authentication for testing</p>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Development Mode:</strong> This simulates SAML authentication without requiring a real SurfConext IdP.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-university me-2"></i>Select University
+                            </label>
+                            <select class="form-select form-select-lg" name="university">
+                                <option value="tudelft.nl">TU Delft</option>
+                                <option value="uva.nl">University of Amsterdam</option>
+                                <option value="uu.nl">Utrecht University</option>
+                                <option value="tue.nl">Eindhoven University of Technology</option>
+                                <option value="wur.nl">Wageningen University & Research</option>
+                                <option value="vu.nl">Vrije Universiteit Amsterdam</option>
+                                <option value="leidenuniv.nl">Leiden University</option>
+                                <option value="rug.nl">University of Groningen</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-user me-2"></i>Student Name
+                            </label>
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   name="student_name"
+                                   value="Test Student"
+                                   placeholder="Enter student name">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            <input type="email" 
+                                   class="form-control form-control-lg" 
+                                   name="email"
+                                   value="test.student@tudelft.nl"
+                                   placeholder="Enter email">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-id-card me-2"></i>Student ID
+                            </label>
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   name="student_id"
+                                   value="12345678"
+                                   placeholder="Enter student ID">
+                        </div>
+
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Simulate SAML Login
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            This creates a test user with the provided information and logs them in.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border-radius: 15px;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.btn-lg {
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 600;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+    border: none;
+    color: #000;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+    color: #000;
+}
+</style>
+{% endblock %} 
