@@ -287,7 +287,6 @@ function initScrollEffects() {
 function initLoadingStates() {
     document.querySelectorAll('button[type="submit"]').forEach(button => {
         button.addEventListener('click', function() {
-            console.log('Form button clicked:', this);
             this.classList.add('loading');
             this.disabled = true;
             
@@ -298,22 +297,6 @@ function initLoadingStates() {
             }, 2000);
         });
     });
-    
-    // Special handling for logout form
-    const logoutForm = document.getElementById('logout-form');
-    if (logoutForm) {
-        console.log('Logout form found');
-        logoutForm.addEventListener('submit', function(e) {
-            console.log('Logout form submitted');
-            const formData = new FormData(logoutForm);
-            console.log('Logout form data:');
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ': ' + value);
-            }
-        });
-    } else {
-        console.log('Logout form not found');
-    }
 }
 
 // Utility functions

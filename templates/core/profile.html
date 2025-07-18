@@ -35,12 +35,9 @@
                     <a href="{% url 'core:edit_profile' %}" class="btn btn-light">
                         <i class="fas fa-edit me-2"></i>Edit Profile
                     </a>
-                                                <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-light">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Sign Out
-                                </button>
-                            </form>
+                    <a href="{% url 'core:logout' %}" class="btn btn-outline-light">
+                        <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                    </a>
                 </div>
             </div>
         </div>

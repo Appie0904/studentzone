@@ -10,6 +10,7 @@ from communities.models import Community
 from discussions.models import Discussion
 from projects.models import Project
 from resources.models import Resource
+from django.contrib.auth import logout
 
 
 def home(request):
@@ -222,6 +223,8 @@ def test_dropdown(request):
     return render(request, 'core/test_dropdown.html')
 
 
-def auth_test(request):
-    """Test authentication functionality"""
-    return render(request, 'core/auth_test.html')
+def logout_view(request):
+    """Log out the user and redirect to home"""
+    logout(request)
+    messages.info(request, "You have been logged out successfully.")
+    return redirect('core:home')

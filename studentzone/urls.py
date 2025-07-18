@@ -25,7 +25,7 @@ urlpatterns = [
     
     # Authentication URLs
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logout.html'), name='logout'),
+    # Logout handled by core app
     # Note: register and settings views need to be implemented properly
     # For now, redirecting to home page
     path('register/', auth_views.LoginView.as_view(template_name='registration/register.html'), name='register'),
