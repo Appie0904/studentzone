@@ -308,6 +308,7 @@ def dev_login(request):
         
         from django.contrib.auth import get_user_model
         from django.contrib.auth import login
+        from .models import UserProfile, University
         
         User = get_user_model()
         
@@ -323,7 +324,6 @@ def dev_login(request):
         
         if created:
             # Create user profile
-            from .models import UserProfile, University
             university, _ = University.objects.get_or_create(
                 code=university_code,
                 defaults={
