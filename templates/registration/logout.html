@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Logged Out - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="content-card text-center">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h3 class="card-title">Successfully Logged Out</h3>
+                </div>
+                <div class="card-content">
+                    <p class="mb-4">You have been successfully logged out of your account.</p>
+                    
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{% url 'login' %}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Log In Again
+                        </a>
+                        <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Go Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

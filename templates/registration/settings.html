@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h3 class="card-title">Settings</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-center mb-4">Settings functionality is coming soon!</p>
+                    
+                    <div class="text-center">
+                        <a href="{% url 'core:home' %}" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i>Go Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

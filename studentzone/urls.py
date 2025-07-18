@@ -25,7 +25,9 @@ urlpatterns = [
     
     # Authentication URLs
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logout.html'), name='logout'),
+    # Note: register and settings views need to be implemented properly
+    # For now, redirecting to home page
     path('register/', auth_views.LoginView.as_view(template_name='registration/register.html'), name='register'),
     path('settings/', auth_views.LoginView.as_view(template_name='registration/settings.html'), name='settings'),
     path('password_change/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change_form.html'), name='password_change'),

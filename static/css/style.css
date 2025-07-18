@@ -199,6 +199,15 @@ p {
   box-shadow: var(--shadow-lg);
   background: var(--bg-primary);
   min-width: 200px;
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+}
+
+.user-profile .dropdown-menu.show {
+  display: block;
 }
 
 .user-profile .dropdown-item {
@@ -224,6 +233,23 @@ p {
 .user-profile .dropdown-divider {
   margin: 0.5rem 0;
   border-color: var(--bg-tertiary);
+}
+
+/* Logout button styling */
+.user-profile .dropdown-item[type="submit"] {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.user-profile .dropdown-item[type="submit"]:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
 }
 
 .user-avatar {

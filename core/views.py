@@ -215,3 +215,8 @@ def about(request):
 def contact(request):
     """Contact page"""
     return render(request, 'core/contact.html')
+
+
+def test_dropdown(request):
+    """Test dropdown functionality"""
+    return render(request, 'core/test_dropdown.html')
