@@ -30,7 +30,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = [
-            'university', 'study_field', 'study_level', 'bio', 'avatar'
+            'university', 'study_field', 'study_level', 'graduation_year', 'bio', 'avatar', 'show_email'
         ]
         widgets = {
             'university': forms.Select(attrs={
@@ -42,6 +42,10 @@ class UserProfileForm(forms.ModelForm):
             'study_level': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'graduation_year': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g., 2025'
+            }),
             'bio': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
@@ -49,6 +53,9 @@ class UserProfileForm(forms.ModelForm):
             }),
             'avatar': forms.FileInput(attrs={
                 'class': 'form-control'
+            }),
+            'show_email': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
             })
         }
     

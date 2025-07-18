@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.username }}'s Profile - StudentZone{% endblock %}
+
+{% block content %}
+<!-- Profile Header Section -->
+<section class="py-5" style="background: var(--bg-gradient);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="user-avatar me-4" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div>
+                        <h1 class="text-white mb-2">{{ user.get_full_name|default:user.username }}</h1>
+                        <p class="text-white-50 mb-3">
+                            <i class="fas fa-at me-2"></i>{{ user.username }}
+                            {% if profile.university %}
+                                <span class="ms-3">
+                                    <i class="fas fa-university me-2"></i>{{ profile.university.name }}
+                                </span>
+                            {% endif %}
+                        </p>
+                        {% if profile.study_field %}
+                            <p class="text-white-50 mb-0">
+                                <i class="fas fa-graduation-cap me-2"></i>{{ profile.study_field.name }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="d-flex gap-2 justify-content-lg-end flex-wrap">
+                    <a href="{% url 'core:edit_profile' %}" class="btn btn-light">
+                        <i class="fas fa-edit me-2"></i>Edit Profile
+                    </a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-light">
+                        <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Profile Content Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Profile Information -->
+            <div class="col-lg-4 mb-4">
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3 class="card-title">Profile Information</h3>
+                    </div>
+                    <div class="card-content">
+                        {% if profile.bio %}
+                            <p class="mb-3">{{ profile.bio }}</p>
+                        {% else %}
+                            <p class="text-muted mb-3">No bio added yet.</p>
+                        {% endif %}
+                        
+                        <div class="profile-details">
+                            {% if profile.university %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-university text-primary me-2"></i>
+                                    <span>{{ profile.university.name }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            {% if profile.study_field %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                    <span>{{ profile.study_field.name }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            {% if profile.study_level %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-graduation-cap text-primary me-2"></i>
+                                    <span>{{ profile.get_study_level_display }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            {% if profile.graduation_year %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-calendar text-primary me-2"></i>
+                                    <span>Graduation: {{ profile.graduation_year }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <span>Member since {{ user.date_joined|date:"F Y" }}</span>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="text-center">
+                            <a href="{% url 'core:edit_profile' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit me-2"></i>Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Activity -->
+            <div class="col-lg-8">
+                <!-- Recent Discussions -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="card-title">Recent Discussions</h3>
+                    </div>
+                    <div class="card-content">
+                        {% if user_discussions %}
+                            <div class="discussion-list">
+                                {% for discussion in user_discussions %}
+                                    <div class="discussion-item mb-3 p-3 bg-light rounded">
+                                        <h6 class="mb-1">
+                                            <a href="{% url 'discussions:discussion_detail' discussion.pk %}" class="text-decoration-none">
+                                                {{ discussion.title }}
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted">
+                                            in {{ discussion.community.name }} • {{ discussion.created_at|timesince }} ago
+                                        </small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{% url 'discussions:discussion_list' %}" class="btn btn-outline-primary btn-sm">
+                                    View All Discussions
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-comments"></i>
+                                <p>You haven't started any discussions yet.</p>
+                                <a href="{% url 'discussions:discussion_create' %}" class="btn btn-primary btn-sm">
+                                    Start a Discussion
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Recent Resources -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3 class="card-title">Recent Resources</h3>
+                    </div>
+                    <div class="card-content">
+                        {% if user_resources %}
+                            <div class="resource-list">
+                                {% for resource in user_resources %}
+                                    <div class="resource-item mb-3 p-3 bg-light rounded">
+                                        <h6 class="mb-1">
+                                            <a href="{% url 'resources:resource_detail' resource.pk %}" class="text-decoration-none">
+                                                {{ resource.title }}
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted">
+                                            {{ resource.resource_type }} • {{ resource.created_at|timesince }} ago
+                                        </small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{% url 'resources:resource_list' %}" class="btn btn-outline-primary btn-sm">
+                                    View All Resources
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-book"></i>
+                                <p>You haven't uploaded any resources yet.</p>
+                                <a href="{% url 'resources:resource_upload' %}" class="btn btn-primary btn-sm">
+                                    Upload Resource
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Recent Projects -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3 class="card-title">Recent Projects</h3>
+                    </div>
+                    <div class="card-content">
+                        {% if user_projects %}
+                            <div class="project-list">
+                                {% for project in user_projects %}
+                                    <div class="project-item mb-3 p-3 bg-light rounded">
+                                        <h6 class="mb-1">
+                                            <a href="{% url 'projects:project_detail' project.pk %}" class="text-decoration-none">
+                                                {{ project.title }}
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted">
+                                            {{ project.project_type }} • {{ project.status }} • {{ project.created_at|timesince }} ago
+                                        </small>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{% url 'projects:project_list' %}" class="btn btn-outline-primary btn-sm">
+                                    View All Projects
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-project-diagram"></i>
+                                <p>You haven't created any projects yet.</p>
+                                <a href="{% url 'projects:project_create' %}" class="btn btn-primary btn-sm">
+                                    Create Project
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 
