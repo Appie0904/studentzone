@@ -188,12 +188,7 @@ SAML_CONFIG = {
     'valid_for': 24,
     'metadata': {
         'local': [],
-        'remote': [
-            {
-                'url': 'https://metadata.surfconext.nl/entities',
-                'cert': None,
-            },
-        ],
+        'remote': [],  # Removed problematic SurfConext URL for development
     },
 }
 

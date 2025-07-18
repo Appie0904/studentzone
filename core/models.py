@@ -50,6 +50,7 @@ class UserProfile(models.Model):
     university = models.ForeignKey(University, on_delete=models.SET_NULL, null=True, blank=True)
     study_field = models.ForeignKey(StudyField, on_delete=models.SET_NULL, null=True, blank=True)
     study_level = models.CharField(max_length=20, choices=STUDY_LEVEL_CHOICES, blank=True)
+    student_id = models.CharField(max_length=50, blank=True, null=True, help_text="Student ID from university")
     graduation_year = models.IntegerField(
         validators=[MinValueValidator(2000), MaxValueValidator(2030)],
         blank=True, null=True
