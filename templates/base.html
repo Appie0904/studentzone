@@ -74,11 +74,13 @@
                 <!-- User Profile -->
                 {% if user.is_authenticated %}
                     <div class="user-profile dropdown">
-                        <div class="user-avatar">
-                            {{ user.username|first|upper }}
-                        </div>
-                        <span class="d-none d-md-inline">{{ user.username }}</span>
-                        <i class="fas fa-chevron-down"></i>
+                        <a class="dropdown-toggle d-flex align-items-center gap-2 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <span class="d-none d-md-inline">{{ user.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
                         
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'core:profile' %}">
