@@ -1,340 +1,221 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}StudentZone - Home{% endblock %}
+{% block title %}StudentZone - Connect with Dutch Students{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<div class="hero-section bg-primary text-white py-5 mb-5 rounded">
+<section class="hero-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-3">
-                    <i class="fas fa-graduation-cap me-3"></i>
-                    Welcome to StudentZone
-                </h1>
-                <p class="lead mb-4">
-                    Connect with Dutch students across universities. Share knowledge, collaborate on projects, 
-                    and build your academic network.
-                </p>
-                {% if not user.is_authenticated %}
-                    <a href="{% url 'login' %}" class="btn btn-light btn-lg me-3">
-                        <i class="fas fa-sign-in-alt me-2"></i>Get Started
-                    </a>
-                    <a href="{% url 'core:about' %}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-info-circle me-2"></i>Learn More
-                    </a>
-                {% else %}
-                    <a href="{% url 'communities:community_list' %}" class="btn btn-light btn-lg me-3">
-                        <i class="fas fa-users me-2"></i>Join Communities
-                    </a>
-                    <a href="{% url 'discussions:discussion_list' %}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-comments me-2"></i>Start Discussion
-                    </a>
-                {% endif %}
-            </div>
-            <div class="col-lg-4 text-center">
-                <i class="fas fa-network-wired" style="font-size: 8rem; opacity: 0.3;"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Stats Section -->
-<div class="row mb-5">
-    <div class="col-md-3 text-center">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <i class="fas fa-users text-primary mb-3" style="font-size: 2.5rem;"></i>
-                <h3 class="fw-bold">{{ total_users|default:0 }}</h3>
-                <p class="text-muted mb-0">Active Students</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 text-center">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <i class="fas fa-layer-group text-success mb-3" style="font-size: 2.5rem;"></i>
-                <h3 class="fw-bold">{{ total_communities|default:0 }}</h3>
-                <p class="text-muted mb-0">Communities</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 text-center">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <i class="fas fa-comments text-info mb-3" style="font-size: 2.5rem;"></i>
-                <h3 class="fw-bold">{{ total_discussions|default:0 }}</h3>
-                <p class="text-muted mb-0">Discussions</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 text-center">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <i class="fas fa-book text-warning mb-3" style="font-size: 2.5rem;"></i>
-                <h3 class="fw-bold">{{ total_resources|default:0 }}</h3>
-                <p class="text-muted mb-0">Resources</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% if user.is_authenticated %}
-    <!-- User Dashboard -->
-    <div class="row">
-        <!-- User's Communities -->
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-users me-2"></i>Your Communities
-                    </h5>
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        <i class="fas fa-graduation-cap me-3"></i>
+                        Welcome to StudentZone
+                    </h1>
+                    <p class="hero-subtitle">
+                        Connect with Dutch students across universities. Share knowledge, collaborate on projects, and build your academic network.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="{% url 'community_list' %}" class="btn btn-primary">
+                            <i class="fas fa-users"></i>
+                            Join Communities
+                        </a>
+                        <a href="{% url 'discussion_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-comments"></i>
+                            Start Discussion
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-graphic">
+                    <div class="network-graphic">
+                        <div class="network-lines">
+                            <div class="network-line"></div>
+                            <div class="network-line"></div>
+                            <div class="network-line"></div>
+                            <div class="network-line"></div>
+                        </div>
+                        <div class="network-node">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="network-node">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="network-node">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="network-node">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Platform Statistics</h2>
+            <p>See how our community is growing and connecting Dutch students</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon students">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number">{{ active_students|default:"1" }}</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon communities">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="stat-number">{{ communities_count|default:"0" }}</div>
+                <div class="stat-label">Communities</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon discussions">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-number">{{ discussions_count|default:"0" }}</div>
+                <div class="stat-label">Discussions</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon resources">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-number">{{ resources_count|default:"0" }}</div>
+                <div class="stat-label">Resources</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Content Sections -->
+<section class="content-section">
+    <div class="container">
+        <div class="content-grid">
+            <!-- Your Communities -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="card-title">Your Communities</h3>
+                </div>
+                <div class="card-content">
                     {% if user_communities %}
-                        {% for community in user_communities %}
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">
-                                        <a href="{{ community.get_absolute_url }}" class="text-decoration-none">
-                                            {{ community.name }}
-                                        </a>
-                                    </h6>
-                                    <small class="text-muted">{{ community.study_field.name }}</small>
-                                </div>
-                                <span class="badge bg-primary">{{ community.member_count }} members</span>
-                            </div>
-                        {% endfor %}
-                        <a href="{% url 'communities:community_list' %}" class="btn btn-outline-primary btn-sm">
-                            View All Communities
-                        </a>
-                    {% else %}
-                        <p class="text-muted">You haven't joined any communities yet.</p>
-                        <a href="{% url 'communities:community_list' %}" class="btn btn-primary btn-sm">
-                            Discover Communities
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Discussions -->
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-comments me-2"></i>Recent Discussions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if recent_discussions %}
-                        {% for discussion in recent_discussions %}
-                            <div class="mb-3">
-                                <h6 class="mb-1">
-                                    <a href="{{ discussion.get_absolute_url }}" class="text-decoration-none">
-                                        {{ discussion.title|truncatechars:50 }}
-                                    </a>
-                                </h6>
-                                <small class="text-muted">
-                                    by {{ discussion.author.username }} • {{ discussion.created_at|timesince }} ago
-                                </small>
-                            </div>
-                        {% endfor %}
-                        <a href="{% url 'discussions:discussion_list' %}" class="btn btn-outline-primary btn-sm">
-                            View All Discussions
-                        </a>
-                    {% else %}
-                        <p class="text-muted">No recent discussions in your communities.</p>
-                        <a href="{% url 'discussions:discussion_list' %}" class="btn btn-primary btn-sm">
-                            Start a Discussion
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Featured Projects -->
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-project-diagram me-2"></i>Featured Projects
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if featured_projects %}
-                        {% for project in featured_projects %}
-                            <div class="mb-3">
-                                <h6 class="mb-1">
-                                    <a href="{{ project.get_absolute_url }}" class="text-decoration-none">
-                                        {{ project.title|truncatechars:50 }}
-                                    </a>
-                                </h6>
-                                <small class="text-muted">
-                                    {{ project.project_type|title }} • {{ project.community.name }}
-                                </small>
-                                {% if project.is_recruiting %}
-                                    <span class="badge bg-success ms-2">Recruiting</span>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        <a href="{% url 'projects:project_list' %}" class="btn btn-outline-primary btn-sm">
-                            View All Projects
-                        </a>
-                    {% else %}
-                        <p class="text-muted">No featured projects at the moment.</p>
-                        <a href="{% url 'projects:project_list' %}" class="btn btn-primary btn-sm">
-                            Browse Projects
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Resources -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-book me-2"></i>Recent Resources
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if recent_resources %}
-                        <div class="row">
-                            {% for resource in recent_resources %}
-                                <div class="col-md-4 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h6 class="card-title">
-                                                <a href="{{ resource.get_absolute_url }}" class="text-decoration-none">
-                                                    {{ resource.title|truncatechars:40 }}
-                                                </a>
-                                            </h6>
-                                            <p class="card-text small text-muted">
-                                                {{ resource.description|truncatechars:80 }}
-                                            </p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted">{{ resource.resource_type|title }}</small>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-download me-1"></i>{{ resource.download_count }}
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class="community-list">
+                            {% for community in user_communities %}
+                                <div class="community-item mb-3 p-3 bg-light rounded">
+                                    <h6 class="mb-1">{{ community.name }}</h6>
+                                    <small class="text-muted">{{ community.members.count }} members</small>
                                 </div>
                             {% endfor %}
                         </div>
-                        <a href="{% url 'resources:resource_list' %}" class="btn btn-outline-primary">
-                            Browse All Resources
-                        </a>
                     {% else %}
-                        <p class="text-muted">No recent resources available.</p>
-                        <a href="{% url 'resources:resource_list' %}" class="btn btn-primary">
-                            Browse Resources
-                        </a>
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <p>You haven't joined any communities yet.</p>
+                            <a href="{% url 'community_list' %}" class="btn btn-primary btn-sm">
+                                Explore Communities
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
-        </div>
-    </div>
-
-{% else %}
-    <!-- Public Content for Non-Authenticated Users -->
-    <div class="row">
-        <!-- Popular Communities -->
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-users me-2"></i>Popular Communities
-                    </h5>
+            
+            <!-- Recent Discussions -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="card-title">Recent Discussions</h3>
                 </div>
-                <div class="card-body">
-                    {% if popular_communities %}
-                        {% for community in popular_communities %}
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ community.name }}</h6>
-                                    <small class="text-muted">{{ community.study_field.name }}</small>
-                                </div>
-                                <span class="badge bg-primary">{{ community.member_count }} members</span>
-                            </div>
-                        {% endfor %}
-                        <a href="{% url 'communities:community_list' %}" class="btn btn-outline-primary btn-sm">
-                            View All Communities
-                        </a>
-                    {% else %}
-                        <p class="text-muted">No communities available yet.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Discussions -->
-        <div class="col-lg-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-comments me-2"></i>Recent Discussions
-                    </h5>
-                </div>
-                <div class="card-body">
+                <div class="card-content">
                     {% if recent_discussions %}
-                        {% for discussion in recent_discussions %}
-                            <div class="mb-3">
-                                <h6 class="mb-1">{{ discussion.title|truncatechars:50 }}</h6>
-                                <small class="text-muted">
-                                    by {{ discussion.author.username }} • {{ discussion.created_at|timesince }} ago
-                                </small>
-                            </div>
-                        {% endfor %}
-                        <a href="{% url 'discussions:discussion_list' %}" class="btn btn-outline-primary btn-sm">
-                            View All Discussions
-                        </a>
+                        <div class="discussion-list">
+                            {% for discussion in recent_discussions %}
+                                <div class="discussion-item mb-3 p-3 bg-light rounded">
+                                    <h6 class="mb-1">{{ discussion.title }}</h6>
+                                    <small class="text-muted">
+                                        by {{ discussion.author.username }} • {{ discussion.created_at|timesince }} ago
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
                     {% else %}
-                        <p class="text-muted">No discussions available yet.</p>
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <p>No recent discussions in your communities.</p>
+                            <a href="{% url 'discussion_list' %}" class="btn btn-primary btn-sm">
+                                Start a Discussion
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Featured Projects -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3 class="card-title">Featured Projects</h3>
+                </div>
+                <div class="card-content">
+                    {% if featured_projects %}
+                        <div class="project-list">
+                            {% for project in featured_projects %}
+                                <div class="project-item mb-3 p-3 bg-light rounded">
+                                    <h6 class="mb-1">{{ project.title }}</h6>
+                                    <small class="text-muted">
+                                        {{ project.members.count }} members • {{ project.status }}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-project-diagram"></i>
+                            <p>No featured projects at the moment.</p>
+                            <a href="{% url 'project_list' %}" class="btn btn-primary btn-sm">
+                                Browse Projects
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
-{% endif %}
+</section>
 
-<!-- Features Section -->
-<div class="row mt-5">
-    <div class="col-12">
-        <h2 class="text-center mb-4">Why Choose StudentZone?</h2>
-    </div>
-    <div class="col-md-4 text-center mb-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <i class="fas fa-network-wired text-primary mb-3" style="font-size: 3rem;"></i>
-                <h5>Cross-University Network</h5>
-                <p class="text-muted">Connect with students from TU Delft, UvA, UU, and other Dutch universities.</p>
-            </div>
+<!-- Call to Action Section -->
+<section class="py-5" style="background: var(--bg-gradient-secondary);">
+    <div class="container text-center text-white">
+        <h2 class="mb-4">Ready to Connect?</h2>
+        <p class="mb-4 fs-5">Join thousands of Dutch students building the future of education together.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-user-plus me-2"></i>
+                Get Started
+            </a>
+            <a href="{% url 'community_list' %}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-search me-2"></i>
+                Explore Communities
+            </a>
         </div>
     </div>
-    <div class="col-md-4 text-center mb-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <i class="fas fa-lightbulb text-warning mb-3" style="font-size: 3rem;"></i>
-                <h5>Knowledge Sharing</h5>
-                <p class="text-muted">Share resources, ask questions, and learn from peers across institutions.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 text-center mb-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <i class="fas fa-handshake text-success mb-3" style="font-size: 3rem;"></i>
-                <h5>Collaboration</h5>
-                <p class="text-muted">Find study partners, join projects, and build your professional network.</p>
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 {% endblock %} 
