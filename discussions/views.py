@@ -186,26 +186,45 @@ def discussion_close(request, pk):
 @login_required
 def comment_create(request, discussion_pk):
     """Create a comment"""
+    print(f"DEBUG: comment_create view called with discussion_pk: {discussion_pk}")
+    print(f"DEBUG: Request method: {request.method}")
+    print(f"DEBUG: User authenticated: {request.user.is_authenticated}")
+    
     discussion = get_object_or_404(Discussion, pk=discussion_pk)
+    print(f"DEBUG: Discussion found: {discussion.title}")
     
     if request.method == 'POST':
+        print(f"DEBUG: Comment creation POST request received")
+        print(f"DEBUG: POST data: {request.POST}")
+        
         content = request.POST.get('content')
         parent_comment_id = request.POST.get('parent_comment')
         
-        if content:
-            comment = Comment.objects.create(
-                discussion=discussion,
-                content=content,
-                author=request.user
-            )
-            
-            if parent_comment_id:
-                comment.parent_comment_id = parent_comment_id
-                comment.save()
-            
-            messages.success(request, 'Comment added successfully!')
+        print(f"DEBUG: Content: {content}")
+        print(f"DEBUG: Parent comment ID: {parent_comment_id}")
+        
+        if content and content.strip():
+            try:
+                comment = Comment.objects.create(
+                    discussion=discussion,
+                    content=content.strip(),
+                    author=request.user
+                )
+                
+                if parent_comment_id:
+                    comment.parent_comment_id = parent_comment_id
+                    comment.save()
+                
+                print(f"DEBUG: Comment created successfully with ID: {comment.pk}")
+                messages.success(request, 'Comment added successfully!')
+            except Exception as e:
+                print(f"DEBUG: Error creating comment: {e}")
+                messages.error(request, f'Error creating comment: {str(e)}')
         else:
+            print(f"DEBUG: No content provided")
             messages.error(request, 'Please enter a comment.')
+    else:
+        print(f"DEBUG: Non-POST request to comment_create")
     
     return redirect('discussions:discussion_detail', pk=discussion.pk)
 
