@@ -51,9 +51,14 @@
                             <a href="{% url 'communities:community_list' %}" class="btn btn-outline-secondary btn-lg">
                                 <i class="fas fa-arrow-left me-2"></i>Cancel
                             </a>
-                            <button type="submit" class="btn btn-primary btn-lg" id="saveBtn">
-                                <i class="fas fa-save me-2"></i>Save Community
-                            </button>
+                            <div>
+                                <button type="button" class="btn btn-warning btn-lg me-2" id="testBtn">
+                                    <i class="fas fa-bug me-2"></i>Test Submit
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg" id="saveBtn">
+                                    <i class="fas fa-save me-2"></i>Save Community
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -120,43 +125,58 @@
 </style>
 
 <script>
-document.getElementById('communityForm').addEventListener('submit', function(e) {
-    console.log('Form submission started');
-    const formData = new FormData(this);
-    console.log('Form data:', Object.fromEntries(formData));
-    
-    // Show loading state
-    const saveBtn = document.getElementById('saveBtn');
-    const originalText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-    saveBtn.disabled = true;
-    
-    // Re-enable after a delay in case of error
-    setTimeout(() => {
-        saveBtn.innerHTML = originalText;
-        saveBtn.disabled = false;
-    }, 10000);
-});
-
-// Debug form field values
+// Simple form debugging
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Community form loaded');
     const form = document.getElementById('communityForm');
+    const saveBtn = document.getElementById('saveBtn');
+    
     if (form) {
         console.log('Form found:', form);
-        const fields = form.querySelectorAll('input, select, textarea');
-        console.log('Form fields:', fields.length);
+        console.log('Form action:', form.action);
+        console.log('Form method:', form.method);
         
-        // Add validation feedback
-        fields.forEach(field => {
-            field.addEventListener('blur', function() {
-                if (this.hasAttribute('required') && !this.value.trim()) {
-                    this.classList.add('is-invalid');
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
+        // Simple form submission handler
+        form.addEventListener('submit', function(e) {
+            console.log('Form submission started');
+            
+            // Show loading state
+            if (saveBtn) {
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                saveBtn.disabled = true;
+            }
+            
+            console.log('Form submission proceeding...');
         });
+        
+        // Add click handler to save button
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function(e) {
+                console.log('Save button clicked');
+            });
+        }
+        
+        // Add test button functionality
+        const testBtn = document.getElementById('testBtn');
+        if (testBtn) {
+            testBtn.addEventListener('click', function(e) {
+                console.log('Test button clicked');
+                
+                // Fill in some test data
+                const nameField = form.querySelector('input[name="name"]');
+                const descField = form.querySelector('textarea[name="description"]');
+                const studyField = form.querySelector('select[name="study_field"]');
+                
+                if (nameField) nameField.value = 'Test Community';
+                if (descField) descField.value = 'This is a test community';
+                if (studyField && studyField.options.length > 1) studyField.value = studyField.options[1].value;
+                
+                console.log('Test data filled, submitting form...');
+                form.submit();
+            });
+        }
+    } else {
+        console.error('Form not found!');
     }
 });
 </script>
