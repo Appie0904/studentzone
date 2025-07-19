@@ -759,6 +759,7 @@ function bookmarkDiscussion(discussionId) {
 }
 
 function deleteDiscussion(discussionId) {
+    console.log('Delete discussion function called with ID:', discussionId);
     const modal = new bootstrap.Modal(document.getElementById('deleteDiscussionModal'));
     modal.show();
 }
@@ -920,6 +921,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     } else {
         console.error('Comment form not found!');
+    }
+
+    // Add event handler for delete discussion button
+    const deleteDiscussionBtn = document.querySelector('#deleteDiscussionModal .btn-danger');
+    if (deleteDiscussionBtn) {
+        console.log('Delete discussion button found:', deleteDiscussionBtn);
+        
+        deleteDiscussionBtn.addEventListener('click', function(e) {
+            console.log('Delete discussion button clicked');
+            
+            // Get the form
+            const form = this.closest('form');
+            if (form) {
+                console.log('Form found:', form);
+                console.log('Form action:', form.action);
+                console.log('Form method:', form.method);
+                
+                // Show loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Deleting...';
+                this.disabled = true;
+                
+                // Submit the form
+                form.submit();
+            } else {
+                console.error('No form found for delete discussion button');
+            }
+        });
+    } else {
+        console.error('Delete discussion button not found');
     }
 });
 </script>
