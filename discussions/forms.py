@@ -40,7 +40,7 @@ class DiscussionForm(forms.ModelForm):
             from communities.models import CommunityMembership
             user_communities = CommunityMembership.objects.filter(
                 user=user, 
-                status='accepted'
+                is_active=True
             ).values_list('community_id', flat=True)
             self.fields['community'].queryset = self.fields['community'].queryset.filter(
                 id__in=user_communities
