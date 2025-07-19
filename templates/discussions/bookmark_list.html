@@ -1,0 +1,565 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookmarks - StudentZone{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bookmarks-hero">
+    <div class="hero-background"></div>
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">My Bookmarks</h1>
+            <p class="hero-subtitle">Your saved discussions and resources</p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <i class="fas fa-bookmark"></i>
+                    <span>{{ page_obj.paginator.count }} bookmarks</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Bookmarks List -->
+<section class="bookmarks-content">
+    <div class="container">
+        {% if page_obj %}
+            <div class="bookmarks-grid">
+                {% for bookmark in page_obj %}
+                    <div class="bookmark-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}">
+                        <div class="bookmark-header">
+                            <div class="discussion-meta">
+                                <span class="discussion-type {{ bookmark.discussion.discussion_type }}">
+                                    <i class="fas fa-{% if bookmark.discussion.discussion_type == 'question' %}question-circle{% elif bookmark.discussion.discussion_type == 'announcement' %}bullhorn{% elif bookmark.discussion.discussion_type == 'resource' %}book{% else %}comments{% endif %}"></i>
+                                    {{ bookmark.discussion.discussion_type|title }}
+                                </span>
+                                <span class="bookmark-date">
+                                    <i class="fas fa-bookmark"></i>
+                                    {{ bookmark.created_at|timesince }} ago
+                                </span>
+                            </div>
+                            <div class="discussion-community">
+                                <a href="{% url 'communities:community_detail' bookmark.discussion.community.pk %}">
+                                    {{ bookmark.discussion.community.name }}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="bookmark-body">
+                            <h3 class="discussion-title">
+                                <a href="{% url 'discussions:discussion_detail' bookmark.discussion.pk %}">
+                                    {{ bookmark.discussion.title }}
+                                </a>
+                            </h3>
+                            <p class="discussion-excerpt">
+                                {{ bookmark.discussion.content|truncatewords:30 }}
+                            </p>
+                            {% if bookmark.discussion.tags %}
+                                <div class="discussion-tags">
+                                    {% for tag in bookmark.discussion.tags.split|slice:":3" %}
+                                        <span class="tag">{{ tag }}</span>
+                                    {% endfor %}
+                                    {% if bookmark.discussion.tags.split|length > 3 %}
+                                        <span class="tag-more">+{{ bookmark.discussion.tags.split|length|add:"-3" }} more</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="bookmark-footer">
+                            <div class="discussion-author">
+                                <div class="author-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="author-info">
+                                    <span class="author-name">{{ bookmark.discussion.author.username }}</span>
+                                    <span class="discussion-date">{{ bookmark.discussion.created_at|timesince }} ago</span>
+                                </div>
+                            </div>
+                            <div class="discussion-stats">
+                                <span class="stat">
+                                    <i class="fas fa-eye"></i>
+                                    {{ bookmark.discussion.view_count }}
+                                </span>
+                                <span class="stat">
+                                    <i class="fas fa-comment"></i>
+                                    {{ bookmark.discussion.comments.count }}
+                                </span>
+                                <span class="stat">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    {{ bookmark.discussion.upvotes.count }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="bookmark-actions">
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeBookmark({{ bookmark.discussion.pk }})">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="pagination-wrapper">
+                    <nav aria-label="Bookmarks pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-bookmark"></i>
+                </div>
+                <h3>No bookmarks yet</h3>
+                <p>Start bookmarking interesting discussions to find them later!</p>
+                <div class="empty-actions">
+                    <a href="{% url 'discussions:discussion_list' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Browse Discussions
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+/* Hero Section */
+.bookmarks-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-top: -80px;
+    padding-top: 120px;
+    padding-bottom: 60px;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Bookmarks Content */
+.bookmarks-content {
+    padding: 4rem 0;
+    background: var(--bg-secondary);
+}
+
+.bookmarks-grid {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.bookmark-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--bg-tertiary);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.bookmark-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.bookmark-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.discussion-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.discussion-type {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.discussion-type.question {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.discussion-type.discussion {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.discussion-type.announcement {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.discussion-type.resource {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.bookmark-date {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.discussion-community a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.discussion-community a:hover {
+    color: var(--primary-dark);
+}
+
+.discussion-title {
+    margin-bottom: 1rem;
+}
+
+.discussion-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.discussion-title a:hover {
+    color: var(--primary-color);
+}
+
+.discussion-excerpt {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.discussion-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.tag {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.tag-more {
+    color: var(--text-light);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.discussion-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bg-tertiary);
+    margin-bottom: 1rem;
+}
+
+.discussion-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.author-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.author-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.discussion-date {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.discussion-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.bookmark-actions {
+    text-align: right;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    margin-top: 3rem;
+}
+
+.pagination .page-link {
+    border: none;
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    width: 120px;
+    height: 120px;
+    background: var(--bg-tertiary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 3rem;
+    color: var(--text-light);
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .bookmark-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .discussion-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .discussion-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .bookmark-actions {
+        text-align: left;
+    }
+    
+    .empty-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+// Remove bookmark function
+function removeBookmark(discussionId) {
+    if (confirm('Remove this bookmark?')) {
+        fetch(`/discussions/${discussionId}/bookmark/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the card from the DOM
+                const card = document.querySelector(`[onclick="removeBookmark(${discussionId})"]`).closest('.bookmark-card');
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(100px)';
+                setTimeout(() => {
+                    card.remove();
+                    // Reload page if no more bookmarks
+                    if (document.querySelectorAll('.bookmark-card').length === 0) {
+                        location.reload();
+                    }
+                }, 300);
+            }
+        });
+    }
+}
+
+// Scroll-based fade-in animation
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    const cards = document.querySelectorAll('.bookmark-card');
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %} 
