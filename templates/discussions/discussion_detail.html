@@ -123,7 +123,7 @@
                                 <textarea name="content" class="form-control" rows="4" placeholder="Write your comment..." required></textarea>
                             </div>
                             <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="postCommentBtn">
                                     <i class="fas fa-paper-plane me-2"></i>Post Comment
                                 </button>
                             </div>
@@ -825,5 +825,49 @@ function deleteComment(commentId) {
         });
     }
 }
+
+// Comment form debugging
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Discussion detail page loaded');
+    
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        console.log('Comment form found:', commentForm);
+        console.log('Form action:', commentForm.action);
+        console.log('Form method:', commentForm.method);
+        
+        // Add form submission debugging
+        commentForm.addEventListener('submit', function(e) {
+            console.log('Comment form submission started');
+            console.log('Form data:', new FormData(commentForm));
+            
+            const textarea = commentForm.querySelector('textarea[name="content"]');
+            console.log('Textarea value:', textarea.value);
+            
+            if (!textarea.value.trim()) {
+                console.log('No content provided, preventing submission');
+                e.preventDefault();
+                alert('Please enter a comment before posting.');
+                return false;
+            }
+            
+            console.log('Form submission proceeding...');
+        });
+        
+        // Add button click debugging
+        const submitBtn = commentForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            console.log('Submit button found:', submitBtn);
+            
+            submitBtn.addEventListener('click', function(e) {
+                console.log('Submit button clicked');
+                console.log('Button type:', this.type);
+                console.log('Button form:', this.form);
+            });
+        }
+    } else {
+        console.error('Comment form not found!');
+    }
+});
 </script>
 {% endblock %} 
