@@ -706,6 +706,9 @@ function upvoteDiscussion(discussionId) {
         if (data.success) {
             document.getElementById('upvote-count').textContent = data.upvotes;
         }
+    })
+    .catch(error => {
+        console.error('Error upvoting discussion:', error);
     });
 }
 
@@ -721,6 +724,9 @@ function downvoteDiscussion(discussionId) {
         if (data.success) {
             document.getElementById('downvote-count').textContent = data.downvotes;
         }
+    })
+    .catch(error => {
+        console.error('Error downvoting discussion:', error);
     });
 }
 
@@ -746,6 +752,9 @@ function bookmarkDiscussion(discussionId) {
                 btn.innerHTML = '<i class="fas fa-bookmark-o"></i> Bookmark';
             }
         }
+    })
+    .catch(error => {
+        console.error('Error bookmarking discussion:', error);
     });
 }
 
@@ -765,12 +774,15 @@ function closeDiscussion(discussionId) {
         if (response.ok) {
             location.reload();
         }
+    })
+    .catch(error => {
+        console.error('Error closing discussion:', error);
     });
 }
 
 // Comment vote functions
 function upvoteComment(commentId) {
-    fetch(`/comments/${commentId}/upvote/`, {
+    fetch(`/discussions/comment/${commentId}/upvote/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -781,11 +793,14 @@ function upvoteComment(commentId) {
         if (data.success) {
             document.getElementById(`comment-upvote-${commentId}`).textContent = data.upvotes;
         }
+    })
+    .catch(error => {
+        console.error('Error upvoting comment:', error);
     });
 }
 
 function downvoteComment(commentId) {
-    fetch(`/comments/${commentId}/downvote/`, {
+    fetch(`/discussions/comment/${commentId}/downvote/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -796,6 +811,9 @@ function downvoteComment(commentId) {
         if (data.success) {
             document.getElementById(`comment-downvote-${commentId}`).textContent = data.downvotes;
         }
+    })
+    .catch(error => {
+        console.error('Error downvoting comment:', error);
     });
 }
 
@@ -812,7 +830,7 @@ function replyToComment(commentId) {
 
 function deleteComment(commentId) {
     if (confirm('Are you sure you want to delete this comment?')) {
-        fetch(`/comments/${commentId}/delete/`, {
+        fetch(`/discussions/comment/${commentId}/delete/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -821,7 +839,12 @@ function deleteComment(commentId) {
         .then(response => {
             if (response.ok) {
                 document.getElementById(`comment-${commentId}`).remove();
+            } else {
+                console.error('Error deleting comment:', response.status);
             }
+        })
+        .catch(error => {
+            console.error('Error deleting comment:', error);
         });
     }
 }
