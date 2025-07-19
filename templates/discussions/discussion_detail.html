@@ -854,8 +854,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Form submission proceeding...');
         });
         
-        // Add button click debugging
+        // Add button click debugging and handler
         const submitBtn = commentForm.querySelector('button[type="submit"]');
+        const postCommentBtn = document.getElementById('postCommentBtn');
+        
         if (submitBtn) {
             console.log('Submit button found:', submitBtn);
             
@@ -863,6 +865,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Submit button clicked');
                 console.log('Button type:', this.type);
                 console.log('Button form:', this.form);
+            });
+        }
+        
+        if (postCommentBtn) {
+            console.log('Post comment button found:', postCommentBtn);
+            
+            postCommentBtn.addEventListener('click', function(e) {
+                console.log('Post comment button clicked');
+                e.preventDefault();
+                
+                const textarea = commentForm.querySelector('textarea[name="content"]');
+                console.log('Textarea value:', textarea.value);
+                
+                if (!textarea.value.trim()) {
+                    console.log('No content provided');
+                    alert('Please enter a comment before posting.');
+                    textarea.focus();
+                    return false;
+                }
+                
+                console.log('Submitting comment form...');
+                
+                // Show loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Posting...';
+                this.disabled = true;
+                
+                // Submit the form
+                commentForm.submit();
             });
         }
     } else {
