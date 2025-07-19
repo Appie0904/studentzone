@@ -132,12 +132,28 @@ def discussion_edit(request, pk):
 @login_required
 def discussion_delete(request, pk):
     """Delete discussion"""
+    print(f"DEBUG: discussion_delete view called with pk: {pk}")
+    print(f"DEBUG: Request method: {request.method}")
+    print(f"DEBUG: User authenticated: {request.user.is_authenticated}")
+    
     discussion = get_object_or_404(Discussion, pk=pk, author=request.user)
+    print(f"DEBUG: Discussion found: {discussion.title}")
+    print(f"DEBUG: Discussion author: {discussion.author.username}")
+    print(f"DEBUG: Current user: {request.user.username}")
     
     if request.method == 'POST':
-        discussion.delete()
-        messages.success(request, 'Discussion deleted successfully!')
-        return redirect('discussions:discussion_list')
+        print(f"DEBUG: Discussion deletion POST request received")
+        try:
+            discussion.delete()
+            print(f"DEBUG: Discussion deleted successfully")
+            messages.success(request, 'Discussion deleted successfully!')
+            return redirect('discussions:discussion_list')
+        except Exception as e:
+            print(f"DEBUG: Error deleting discussion: {e}")
+            messages.error(request, f'Error deleting discussion: {str(e)}')
+            return redirect('discussions:discussion_detail', pk=pk)
+    else:
+        print(f"DEBUG: Non-POST request to discussion_delete")
     
     return render(request, 'discussions/discussion_confirm_delete.html', {'discussion': discussion})
 
