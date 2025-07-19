@@ -153,6 +153,35 @@ document.addEventListener('DOMContentLoaded', function() {
         if (saveBtn) {
             saveBtn.addEventListener('click', function(e) {
                 console.log('Save button clicked');
+                
+                // Validate required fields
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        console.log('Required field empty:', field.name);
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                if (!isValid) {
+                    console.log('Form validation failed');
+                    alert('Please fill in all required fields.');
+                    return false;
+                }
+                
+                console.log('Form validation passed, submitting...');
+                
+                // Show loading state
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                saveBtn.disabled = true;
+                
+                // Submit the form programmatically
+                form.submit();
             });
         }
         
