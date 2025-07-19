@@ -51,14 +51,9 @@
                             <a href="{% url 'communities:community_list' %}" class="btn btn-outline-secondary btn-lg">
                                 <i class="fas fa-arrow-left me-2"></i>Cancel
                             </a>
-                            <div>
-                                <button type="button" class="btn btn-warning btn-lg me-2" id="testBtn">
-                                    <i class="fas fa-bug me-2"></i>Test Submit
-                                </button>
-                                <button type="submit" class="btn btn-primary btn-lg" id="saveBtn">
-                                    <i class="fas fa-save me-2"></i>Save Community
-                                </button>
-                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg" id="saveBtn">
+                                <i class="fas fa-save me-2"></i>Save Community
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -125,87 +120,38 @@
 </style>
 
 <script>
-// Simple form debugging
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Community form loaded');
     const form = document.getElementById('communityForm');
     const saveBtn = document.getElementById('saveBtn');
     
-    if (form) {
-        console.log('Form found:', form);
-        console.log('Form action:', form.action);
-        console.log('Form method:', form.method);
-        
-        // Simple form submission handler
-        form.addEventListener('submit', function(e) {
-            console.log('Form submission started');
+    if (form && saveBtn) {
+        // Add click handler to save button
+        saveBtn.addEventListener('click', function(e) {
+            // Validate required fields
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
             
-            // Show loading state
-            if (saveBtn) {
-                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-                saveBtn.disabled = true;
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                alert('Please fill in all required fields.');
+                return false;
             }
             
-            console.log('Form submission proceeding...');
+            // Show loading state
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            saveBtn.disabled = true;
+            
+            // Submit the form programmatically
+            form.submit();
         });
-        
-        // Add click handler to save button
-        if (saveBtn) {
-            saveBtn.addEventListener('click', function(e) {
-                console.log('Save button clicked');
-                
-                // Validate required fields
-                const requiredFields = form.querySelectorAll('[required]');
-                let isValid = true;
-                
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        console.log('Required field empty:', field.name);
-                        isValid = false;
-                        field.classList.add('is-invalid');
-                    } else {
-                        field.classList.remove('is-invalid');
-                    }
-                });
-                
-                if (!isValid) {
-                    console.log('Form validation failed');
-                    alert('Please fill in all required fields.');
-                    return false;
-                }
-                
-                console.log('Form validation passed, submitting...');
-                
-                // Show loading state
-                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-                saveBtn.disabled = true;
-                
-                // Submit the form programmatically
-                form.submit();
-            });
-        }
-        
-        // Add test button functionality
-        const testBtn = document.getElementById('testBtn');
-        if (testBtn) {
-            testBtn.addEventListener('click', function(e) {
-                console.log('Test button clicked');
-                
-                // Fill in some test data
-                const nameField = form.querySelector('input[name="name"]');
-                const descField = form.querySelector('textarea[name="description"]');
-                const studyField = form.querySelector('select[name="study_field"]');
-                
-                if (nameField) nameField.value = 'Test Community';
-                if (descField) descField.value = 'This is a test community';
-                if (studyField && studyField.options.length > 1) studyField.value = studyField.options[1].value;
-                
-                console.log('Test data filled, submitting form...');
-                form.submit();
-            });
-        }
-    } else {
-        console.error('Form not found!');
     }
 });
 </script>
