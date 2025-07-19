@@ -3,188 +3,732 @@
 {% block title %}{{ community.name }} - StudentZone{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <!-- Community Header -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h1 class="card-title">{{ community.name }}</h1>
-                        <p class="text-muted">{{ community.study_field.name }}</p>
+<!-- Hero Section -->
+<section class="community-hero">
+    <div class="hero-background"></div>
+    <div class="container">
+        <div class="hero-content">
+            <div class="community-header">
+                <div class="community-info">
+                    <div class="community-icon">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="text-end">
-                        {% if user.is_authenticated %}
-                            {% if is_member %}
-                                <span class="badge bg-success mb-2">Member</span>
-                                {% if user_role == 'admin' %}
-                                    <span class="badge bg-warning">Admin</span>
-                                {% endif %}
-                                <br>
-                                <a href="{% url 'communities:community_leave' community.pk %}" class="btn btn-sm btn-outline-danger">
-                                    Leave Community
-                                </a>
-                            {% else %}
-                                <a href="{% url 'communities:community_join' community.pk %}" class="btn btn-primary">
-                                    Join Community
-                                </a>
-                            {% endif %}
-                        {% endif %}
+                    <div class="community-details">
+                        <h1 class="community-title">{{ community.name }}</h1>
+                        <p class="community-subtitle">{{ community.study_field.name }}</p>
+                        <div class="community-stats">
+                            <div class="stat">
+                                <i class="fas fa-users"></i>
+                                <span>{{ community.member_count }} members</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-comments"></i>
+                                <span>{{ community.discussion_count }} discussions</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-book"></i>
+                                <span>{{ community.resource_count }} resources</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <p class="card-text mt-3">{{ community.description }}</p>
-                
-                {% if community.rules %}
-                    <div class="mt-3">
-                        <h5>Community Rules</h5>
-                        <p class="text-muted">{{ community.rules }}</p>
-                    </div>
-                {% endif %}
-                
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <small class="text-muted">
-                            <i class="fas fa-users me-1"></i>{{ community.member_count }} members
-                        </small>
-                    </div>
-                    <div class="col-md-4">
-                        <small class="text-muted">
-                            <i class="fas fa-comments me-1"></i>{{ community.discussion_count }} discussions
-                        </small>
-                    </div>
-                    <div class="col-md-4">
-                        <small class="text-muted">
-                            <i class="fas fa-book me-1"></i>{{ community.resource_count }} resources
-                        </small>
-                    </div>
+                <div class="community-actions">
+                    {% if user.is_authenticated %}
+                        {% if is_member %}
+                            <div class="member-status">
+                                <span class="status-badge member">
+                                    <i class="fas fa-check me-1"></i>Member
+                                </span>
+                                {% if user_role == 'admin' %}
+                                    <span class="status-badge admin">
+                                        <i class="fas fa-crown me-1"></i>Admin
+                                    </span>
+                                {% endif %}
+                                <button class="btn btn-outline-danger btn-sm" onclick="leaveCommunity()">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Leave Community
+                                </button>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'communities:community_join' community.pk %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Join Community
+                            </a>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Recent Discussions -->
-        {% if recent_discussions %}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-comments me-2"></i>Recent Discussions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% for discussion in recent_discussions %}
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <div>
-                                <a href="{% url 'discussions:discussion_detail' discussion.pk %}" class="text-decoration-none">
-                                    {{ discussion.title }}
-                                </a>
-                                <br>
-                                <small class="text-muted">
-                                    by {{ discussion.author.username }} • {{ discussion.created_at|timesince }} ago
-                                </small>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted">
-                                    <i class="fas fa-eye me-1"></i>{{ discussion.view_count }}
-                                    <i class="fas fa-comment me-1 ms-2"></i>{{ discussion.comments.count }}
-                                </small>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    <div class="text-center mt-3">
-                        <a href="{% url 'discussions:discussion_list' %}?community={{ community.id }}" class="btn btn-outline-primary">
-                            View All Discussions
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        <!-- Upcoming Events -->
-        {% if upcoming_events %}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-calendar me-2"></i>Upcoming Events
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% for event in upcoming_events %}
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <div>
-                                <a href="{% url 'communities:event_detail' event.pk %}" class="text-decoration-none">
-                                    {{ event.title }}
-                                </a>
-                                <br>
-                                <small class="text-muted">
-                                    {{ event.start_time|date:"M d, Y H:i" }} • {{ event.location }}
-                                </small>
-                            </div>
-                            <div class="text-end">
-                                <small class="text-muted">
-                                    <i class="fas fa-users me-1"></i>{{ event.participants.count }}
-                                    {% if event.max_participants %}
-                                        / {{ event.max_participants }}
-                                    {% endif %}
-                                </small>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
     </div>
+</section>
 
-    <div class="col-md-4">
-        <!-- Community Actions -->
-        {% if user.is_authenticated and is_member %}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Community Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'discussions:discussion_create' %}" class="btn btn-primary">
-                            <i class="fas fa-plus me-1"></i>Start Discussion
-                        </a>
-                        <a href="{% url 'resources:resource_upload' %}" class="btn btn-outline-primary">
-                            <i class="fas fa-upload me-1"></i>Share Resource
-                        </a>
-                        <a href="{% url 'communities:event_create' community.pk %}" class="btn btn-outline-primary">
-                            <i class="fas fa-calendar-plus me-1"></i>Create Event
-                        </a>
-                        {% if user_role in 'admin,moderator' %}
-                            <a href="{% url 'communities:community_edit' community.pk %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-edit me-1"></i>Edit Community
-                            </a>
+<!-- Main Content -->
+<section class="community-content">
+    <div class="container">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Community Description -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-info-circle me-2"></i>About This Community</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="community-description">{{ community.description }}</p>
+                        
+                        {% if community.rules %}
+                            <div class="community-rules">
+                                <h5><i class="fas fa-gavel me-2"></i>Community Rules</h5>
+                                <div class="rules-content">
+                                    {{ community.rules|linebreaks }}
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
-            </div>
-        {% endif %}
 
-        <!-- Recent Resources -->
-        {% if recent_resources %}
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-book me-2"></i>Recent Resources
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% for resource in recent_resources %}
-                        <div class="py-2 border-bottom">
-                            <a href="{% url 'resources:resource_detail' resource.pk %}" class="text-decoration-none">
-                                {{ resource.title }}
+                <!-- Recent Discussions -->
+                {% if recent_discussions %}
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-comments me-2"></i>Recent Discussions</h3>
+                            <a href="{% url 'discussions:discussion_list' %}?community={{ community.id }}" class="view-all-link">
+                                View All <i class="fas fa-arrow-right"></i>
                             </a>
-                            <br>
-                            <small class="text-muted">
-                                by {{ resource.author.username }} • {{ resource.created_at|timesince }} ago
-                            </small>
                         </div>
-                    {% endfor %}
-                </div>
+                        <div class="card-body">
+                            <div class="discussions-list">
+                                {% for discussion in recent_discussions %}
+                                    <div class="discussion-item">
+                                        <div class="discussion-icon">
+                                            <i class="fas fa-comment-dots"></i>
+                                        </div>
+                                        <div class="discussion-content">
+                                            <h5>
+                                                <a href="{% url 'discussions:discussion_detail' discussion.pk %}">
+                                                    {{ discussion.title }}
+                                                </a>
+                                            </h5>
+                                            <div class="discussion-meta">
+                                                <span class="author">
+                                                    <i class="fas fa-user me-1"></i>{{ discussion.author.username }}
+                                                </span>
+                                                <span class="time">
+                                                    <i class="fas fa-clock me-1"></i>{{ discussion.created_at|timesince }} ago
+                                                </span>
+                                                <span class="views">
+                                                    <i class="fas fa-eye me-1"></i>{{ discussion.view_count }}
+                                                </span>
+                                                <span class="comments">
+                                                    <i class="fas fa-comment me-1"></i>{{ discussion.comments.count }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Upcoming Events -->
+                {% if upcoming_events %}
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar me-2"></i>Upcoming Events</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="events-list">
+                                {% for event in upcoming_events %}
+                                    <div class="event-item">
+                                        <div class="event-date">
+                                            <div class="date-day">{{ event.start_time|date:"d" }}</div>
+                                            <div class="date-month">{{ event.start_time|date:"M" }}</div>
+                                        </div>
+                                        <div class="event-content">
+                                            <h5>
+                                                <a href="{% url 'communities:event_detail' event.pk %}">
+                                                    {{ event.title }}
+                                                </a>
+                                            </h5>
+                                            <div class="event-meta">
+                                                <span class="time">
+                                                    <i class="fas fa-clock me-1"></i>{{ event.start_time|date:"H:i" }}
+                                                </span>
+                                                {% if event.location %}
+                                                    <span class="location">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                                    </span>
+                                                {% endif %}
+                                                <span class="participants">
+                                                    <i class="fas fa-users me-1"></i>{{ event.participants.count }}
+                                                    {% if event.max_participants %}/ {{ event.max_participants }}{% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Community Actions -->
+                {% if user.is_authenticated and is_member %}
+                    <div class="sidebar-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-tools me-2"></i>Community Actions</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="action-buttons">
+                                <a href="{% url 'discussions:discussion_create' %}" class="action-btn primary">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Start Discussion</span>
+                                </a>
+                                <a href="{% url 'resources:resource_upload' %}" class="action-btn secondary">
+                                    <i class="fas fa-upload"></i>
+                                    <span>Share Resource</span>
+                                </a>
+                                <a href="{% url 'communities:event_create' community.pk %}" class="action-btn secondary">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    <span>Create Event</span>
+                                </a>
+                                {% if user_role in 'admin,moderator' %}
+                                    <a href="{% url 'communities:community_edit' community.pk %}" class="action-btn tertiary">
+                                        <i class="fas fa-edit"></i>
+                                        <span>Edit Community</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Recent Resources -->
+                {% if recent_resources %}
+                    <div class="sidebar-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-book me-2"></i>Recent Resources</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="resources-list">
+                                {% for resource in recent_resources %}
+                                    <div class="resource-item">
+                                        <div class="resource-icon">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                        <div class="resource-content">
+                                            <h6>
+                                                <a href="{% url 'resources:resource_detail' resource.pk %}">
+                                                    {{ resource.title }}
+                                                </a>
+                                            </h6>
+                                            <div class="resource-meta">
+                                                <span class="author">{{ resource.author.username }}</span>
+                                                <span class="time">{{ resource.created_at|timesince }} ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Leave Community Modal -->
+<div class="modal fade" id="leaveCommunityModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Leave Community</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to leave "{{ community.name }}"?</p>
+                <p class="text-muted">You can rejoin anytime, but you'll lose your member status.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'communities:community_leave' community.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Leave Community</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+/* Community Hero Section */
+.community-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-top: -80px;
+    padding-top: 120px;
+    padding-bottom: 60px;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.community-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.community-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.community-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.community-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.community-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.community-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.community-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.member-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.member {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.admin {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Main Content */
+.community-content {
+    padding: 4rem 0;
+    background: var(--bg-secondary);
+}
+
+.content-card, .sidebar-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--bg-tertiary);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--bg-tertiary);
+    background: var(--bg-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h3, .card-header h4 {
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.view-all-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.view-all-link:hover {
+    color: var(--primary-dark);
+    transform: translateX(4px);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.community-description {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.community-rules {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.community-rules h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.rules-content {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Discussions List */
+.discussions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.discussion-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 15px;
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.discussion-item:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+}
+
+.discussion-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.discussion-content h5 {
+    margin-bottom: 0.5rem;
+}
+
+.discussion-content h5 a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.discussion-content h5 a:hover {
+    color: var(--primary-color);
+}
+
+.discussion-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.discussion-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Events List */
+.events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.event-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 15px;
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.event-item:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+}
+
+.event-date {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.date-day {
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.date-month {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.event-content h5 {
+    margin-bottom: 0.5rem;
+}
+
+.event-content h5 a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.event-content h5 a:hover {
+    color: var(--primary-color);
+}
+
+.event-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.event-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.action-btn.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-btn.primary:hover {
+    background: var(--primary-dark);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--bg-tertiary);
+}
+
+.action-btn.secondary:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.action-btn.tertiary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 2px solid var(--bg-tertiary);
+}
+
+.action-btn.tertiary:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+/* Resources List */
+.resources-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.resource-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 15px;
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+}
+
+.resource-item:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+}
+
+.resource-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.resource-content h6 {
+    margin-bottom: 0.25rem;
+}
+
+.resource-content h6 a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.resource-content h6 a:hover {
+    color: var(--primary-color);
+}
+
+.resource-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .community-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .community-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .community-title {
+        font-size: 2rem;
+    }
+    
+    .community-stats {
+        justify-content: center;
+    }
+    
+    .community-actions {
+        align-items: center;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<script>
+function leaveCommunity() {
+    const modal = new bootstrap.Modal(document.getElementById('leaveCommunityModal'));
+    modal.show();
+}
+</script>
 {% endblock %} 
