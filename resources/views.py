@@ -14,7 +14,7 @@ from .forms import ResourceForm, ResourceCommentForm, ResourceCollectionForm
 
 def resource_list(request):
     """List all resources with filtering and search."""
-    resources = Resource.objects.select_related('author', 'category', 'study_field').prefetch_related('votes')
+    resources = Resource.objects.select_related('author', 'category', 'category__study_field').prefetch_related('votes')
     
     # Search
     query = request.GET.get('q')
@@ -34,7 +34,7 @@ def resource_list(request):
     # Filter by study field
     field_id = request.GET.get('field')
     if field_id:
-        resources = resources.filter(study_field_id=field_id)
+        resources = resources.filter(category__study_field_id=field_id)
     
     # Filter by type
     resource_type = request.GET.get('type')
@@ -98,14 +98,13 @@ def resource_upload(request):
 
 def resource_detail(request, pk):
     """View a specific resource."""
-    resource = get_object_or_404(Resource.objects.select_related('author', 'category', 'study_field'), pk=pk)
+    resource = get_object_or_404(Resource.objects.select_related('author', 'category', 'category__study_field'), pk=pk)
     
     # Track view if user is authenticated
     if request.user.is_authenticated:
         ResourceDownload.objects.get_or_create(
             user=request.user,
-            resource=resource,
-            defaults={'download_type': 'view'}
+            resource=resource
         )
     
     # Get comments
@@ -118,7 +117,7 @@ def resource_detail(request, pk):
     
     # Get related resources
     related_resources = Resource.objects.filter(
-        Q(category=resource.category) | Q(study_field=resource.study_field)
+        Q(category=resource.category) | Q(category__study_field=resource.category.study_field)
     ).exclude(pk=resource.pk)[:6]
     
     context = {
@@ -177,8 +176,7 @@ def resource_download(request, pk):
     # Record download
     ResourceDownload.objects.create(
         user=request.user,
-        resource=resource,
-        download_type='download'
+        resource=resource
     )
     
     # Redirect to file or external link
@@ -326,7 +324,7 @@ def resource_bookmark(request, pk):
 @login_required
 def bookmark_list(request):
     """List user's bookmarked resources."""
-    bookmarks = ResourceBookmark.objects.filter(user=request.user).select_related('resource', 'resource__author', 'resource__category')
+    bookmarks = ResourceBookmark.objects.filter(user=request.user).select_related('resource', 'resource__author', 'resource__category', 'resource__category__study_field')
     
     # Pagination
     paginator = Paginator(bookmarks, 12)
@@ -334,7 +332,7 @@ def bookmark_list(request):
     page_obj = paginator.get_page(page_number)
     
     context = {
-        'page_obj': page_obj,
+        'bookmarks': bookmarks,
         'title': 'My Resource Bookmarks'
     }
     return render(request, 'resources/bookmark_list.html', context)
@@ -480,10 +478,10 @@ def resource_report(request, pk):
     return render(request, 'resources/resource_report.html', context)
 
 
-def resource_by_category(request, category_slug):
+def resource_by_category(request, category_id):
     """List resources by category."""
-    category = get_object_or_404(ResourceCategory, slug=category_slug)
-    resources = Resource.objects.filter(category=category).select_related('author', 'study_field').prefetch_related('votes')
+    category = get_object_or_404(ResourceCategory, pk=category_id)
+    resources = Resource.objects.filter(category=category).select_related('author', 'category', 'category__study_field').prefetch_related('votes')
     
     # Pagination
     paginator = Paginator(resources, 12)
@@ -497,11 +495,11 @@ def resource_by_category(request, category_slug):
     return render(request, 'resources/resource_by_category.html', context)
 
 
-def resource_by_field(request, field_slug):
+def resource_by_field(request, field_id):
     """List resources by study field."""
     from core.models import StudyField
-    study_field = get_object_or_404(StudyField, slug=field_slug)
-    resources = Resource.objects.filter(study_field=study_field).select_related('author', 'category').prefetch_related('votes')
+    study_field = get_object_or_404(StudyField, pk=field_id)
+    resources = Resource.objects.filter(category__study_field=study_field).select_related('author', 'category', 'category__study_field').prefetch_related('votes')
     
     # Pagination
     paginator = Paginator(resources, 12)

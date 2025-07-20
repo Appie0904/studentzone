@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load markdown_extras %}
+
+{% block title %}Projects - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-project-diagram text-primary me-3"></i>
+                Discover Projects
+            </h1>
+            <p class="lead text-muted mb-4">
+                Find exciting collaboration opportunities across Dutch universities. Join research projects, hackathons, startups, and more.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            {% if user.is_authenticated %}
+                <a href="{% url 'projects:project_create' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create Project
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search Projects</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               value="{{ search }}" placeholder="Search by title or description...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="planning" {% if selected_status == 'planning' %}selected{% endif %}>Planning</option>
+                        <option value="recruiting" {% if selected_status == 'recruiting' %}selected{% endif %}>Recruiting</option>
+                        <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Project Type</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">All Types</option>
+                        <option value="research" {% if selected_type == 'research' %}selected{% endif %}>Research Project</option>
+                        <option value="coursework" {% if selected_type == 'coursework' %}selected{% endif %}>Coursework</option>
+                        <option value="hackathon" {% if selected_type == 'hackathon' %}selected{% endif %}>Hackathon</option>
+                        <option value="startup" {% if selected_type == 'startup' %}selected{% endif %}>Startup/Business</option>
+                        <option value="open_source" {% if selected_type == 'open_source' %}selected{% endif %}>Open Source</option>
+                        <option value="competition" {% if selected_type == 'competition' %}selected{% endif %}>Competition</option>
+                        <option value="other" {% if selected_type == 'other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Projects Grid -->
+    {% if page_obj %}
+        <div class="row g-4">
+            {% for project in page_obj %}
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card h-100 project-card">
+                        <div class="card-body">
+                            <!-- Project Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="project-type-badge">
+                                    <span class="badge bg-primary">{{ project.get_project_type_display }}</span>
+                                </div>
+                                <div class="project-status-badge">
+                                    {% if project.status == 'recruiting' %}
+                                        <span class="badge bg-success">Recruiting</span>
+                                    {% elif project.status == 'active' %}
+                                        <span class="badge bg-info">Active</span>
+                                    {% elif project.status == 'completed' %}
+                                        <span class="badge bg-secondary">Completed</span>
+                                    {% elif project.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Planning</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Project Title and Description -->
+                            <h5 class="card-title mb-2">
+                                <a href="{% url 'projects:project_detail' project.pk %}" class="text-decoration-none">
+                                    {{ project.title }}
+                                </a>
+                            </h5>
+                            <div class="card-text text-muted mb-3">
+                                {{ project.description|markdown|truncatewords_html:20|safe }}
+                            </div>
+
+                            <!-- Project Details -->
+                            <div class="project-details mb-3">
+                                <div class="row text-muted small">
+                                    <div class="col-6">
+                                        <i class="fas fa-users me-1"></i>
+                                        Team: {{ project.team_size_min }}{% if project.team_size_max %}-{{ project.team_size_max }}{% endif %}
+                                    </div>
+                                    <div class="col-6">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {% if project.deadline %}
+                                            Deadline: {{ project.deadline|date:"M d" }}
+                                        {% else %}
+                                            No deadline
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Community and Universities -->
+                            <div class="project-meta mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    <small class="text-muted">{{ project.community.name }}</small>
+                                </div>
+                                {% if project.universities.exists %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-university text-secondary me-2"></i>
+                                        <small class="text-muted">
+                                            {% for university in project.universities.all|slice:":2" %}
+                                                {{ university.abbreviation }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                            {% if project.universities.count > 2 %}
+                                                +{{ project.universities.count|add:"-2" }} more
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Project Stats -->
+                            <div class="project-stats d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex gap-3 text-muted small">
+                                    <span><i class="fas fa-eye me-1"></i>{{ project.view_count }}</span>
+                                    <span><i class="fas fa-user-plus me-1"></i>{{ project.application_count }}</span>
+                                </div>
+                                <small class="text-muted">{{ project.created_at|timesince }} ago</small>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye me-2"></i>View Details
+                                </a>
+                                {% if project.status == 'recruiting' and user.is_authenticated %}
+                                    <a href="{% url 'projects:project_apply' project.pk %}" class="btn btn-success">
+                                        <i class="fas fa-paper-plane me-2"></i>Apply Now
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <nav aria-label="Project pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-project-diagram fa-4x text-muted mb-4"></i>
+                <h3 class="mb-3">No projects found</h3>
+                <p class="text-muted mb-4">
+                    {% if search or selected_status or selected_type %}
+                        Try adjusting your search criteria or filters.
+                    {% else %}
+                        Be the first to create a project and start collaborating!
+                    {% endif %}
+                </p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'projects:project_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create First Project
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.project-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-color: var(--primary-color);
+}
+
+.project-card .card-title a {
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+.project-card .card-title a:hover {
+    color: var(--primary-color);
+}
+
+.project-type-badge .badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.project-status-badge .badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.project-details {
+    background: var(--bg-tertiary);
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.project-meta {
+    border-top: 1px solid var(--bg-tertiary);
+    padding-top: 0.75rem;
+}
+
+.project-stats {
+    border-top: 1px solid var(--bg-tertiary);
+    padding-top: 0.75rem;
+}
+
+.empty-state {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.empty-state i {
+    opacity: 0.5;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+</style>
+{% endblock %} 

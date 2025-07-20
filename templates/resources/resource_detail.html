@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ resource.title }} - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'resources:resource_list' %}">Resources</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'resources:resource_by_field' resource.category.study_field.pk %}">{{ resource.category.study_field.name }}</a></li>
+            <li class="breadcrumb-item active">{{ resource.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Resource Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="resource-type-badge">
+                            <span class="badge bg-primary">{{ resource.get_resource_type_display }}</span>
+                        </div>
+                        <div class="resource-actions">
+                            {% if user.is_authenticated %}
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="voteResource('{{ resource.pk }}', 'upvote')">
+                                        <i class="fas fa-thumbs-up" id="upvote-icon-{{ resource.pk }}"></i>
+                                        <span id="upvote-count-{{ resource.pk }}">{{ resource.upvotes }}</span>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="voteResource('{{ resource.pk }}', 'downvote')">
+                                        <i class="fas fa-thumbs-down" id="downvote-icon-{{ resource.pk }}"></i>
+                                        <span id="downvote-count-{{ resource.pk }}">{{ resource.downvotes }}</span>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h1 class="card-title mb-3">{{ resource.title }}</h1>
+                    
+                    <div class="resource-meta mb-4">
+                        <div class="row text-muted">
+                            <div class="col-md-6">
+                                <i class="fas fa-user me-2"></i>
+                                {% if resource.is_anonymous %}
+                                    Anonymous
+                                {% else %}
+                                    {{ resource.author.username }}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-calendar me-2"></i>
+                                {{ resource.created_at|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-text mb-4">
+                        {{ resource.description|linebreaks }}
+                    </div>
+
+                    <!-- Resource Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-tag me-2"></i>Category</h6>
+                            <p class="text-muted">{{ resource.category.name }} ({{ resource.category.study_field.name }})</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-users me-2"></i>Community</h6>
+                            <p class="text-muted">{{ resource.community.name }}</p>
+                        </div>
+                    </div>
+
+                    {% if resource.course_code or resource.academic_year %}
+                        <div class="row mb-4">
+                            {% if resource.course_code %}
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-book me-2"></i>Course Code</h6>
+                                    <p class="text-muted">{{ resource.course_code }}</p>
+                                </div>
+                            {% endif %}
+                            {% if resource.academic_year %}
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-calendar-alt me-2"></i>Academic Year</h6>
+                                    <p class="text-muted">{{ resource.academic_year }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% if resource.tags %}
+                        <div class="mb-4">
+                            <h6><i class="fas fa-tags me-2"></i>Tags</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for tag in resource.get_tags_list %}
+                                    <span class="badge bg-light text-dark">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Download Section -->
+                    {% if resource.file or resource.external_link %}
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6><i class="fas fa-download me-2"></i>Download Resource</h6>
+                                {% if user.is_authenticated %}
+                                    {% if resource.file %}
+                                        <a href="{% url 'resources:resource_download' resource.pk %}" class="btn btn-success me-2">
+                                            <i class="fas fa-file-download me-2"></i>Download File
+                                        </a>
+                                        <small class="text-muted">
+                                            {% if resource.file_size %}
+                                                ({{ resource.get_file_size_mb }} MB)
+                                            {% endif %}
+                                            {% if resource.get_file_extension %}
+                                                {{ resource.get_file_extension|upper }} file
+                                            {% endif %}
+                                        </small>
+                                    {% endif %}
+                                    {% if resource.external_link %}
+                                        <a href="{% url 'resources:resource_download' resource.pk %}" class="btn btn-info me-2">
+                                            <i class="fas fa-external-link-alt me-2"></i>Visit Link
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <p class="text-muted mb-0">Please <a href="{% url 'saml2_login' %}">sign in</a> to download this resource.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Resource Stats -->
+                    <div class="row text-center mb-4">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h4 class="text-primary">{{ resource.download_count }}</h4>
+                                <small class="text-muted">Downloads</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h4 class="text-info">{{ resource.view_count }}</h4>
+                                <small class="text-muted">Views</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h4 class="text-success">{{ resource.get_vote_score }}</h4>
+                                <small class="text-muted">Score</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 mb-4">
+                        {% if user.is_authenticated %}
+                            {% if user == resource.author %}
+                                <a href="{% url 'resources:resource_edit' resource.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-2"></i>Edit
+                                </a>
+                                <a href="{% url 'resources:resource_delete' resource.pk %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </a>
+                            {% endif %}
+                            <button type="button" class="btn btn-outline-secondary" onclick="toggleBookmark('{{ resource.pk }}')">
+                                <i class="fas fa-bookmark me-2" id="bookmark-icon-{{ resource.pk }}"></i>
+                                <span id="bookmark-text-{{ resource.pk }}">
+                                    {% if is_bookmarked %}Remove Bookmark{% else %}Bookmark{% endif %}
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#reportModal">
+                                <i class="fas fa-flag me-2"></i>Report
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <!-- Comment Form -->
+                        <form method="post" action="{% url 'resources:resource_comment_create' resource.pk %}" class="mb-4">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="{{ comment_form.content.id_for_label }}" class="form-label">Add a comment</label>
+                                {{ comment_form.content }}
+                                {% if comment_form.content.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in comment_form.content.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Post Comment
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    {% if comments %}
+                        <div class="comments-list">
+                            {% for comment in comments %}
+                                <div class="comment-item border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-2">
+                                                {{ comment.author.username|first|upper }}
+                                            </div>
+                                            <div>
+                                                <strong>{{ comment.author.username }}</strong>
+                                                <small class="text-muted ms-2">{{ comment.created_at|timesince }} ago</small>
+                                            </div>
+                                        </div>
+                                        {% if user == comment.author %}
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{% url 'resources:resource_comment_edit' resource.pk comment.pk %}">
+                                                        <i class="fas fa-edit me-2"></i>Edit
+                                                    </a></li>
+                                                    <li><a class="dropdown-item text-danger" href="{% url 'resources:resource_comment_delete' resource.pk comment.pk %}">
+                                                        <i class="fas fa-trash me-2"></i>Delete
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="comment-content">
+                                        {{ comment.content|linebreaks }}
+                                    </div>
+                                    {% if comment.rating %}
+                                        <div class="mt-2">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= comment.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-warning"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">No comments yet. Be the first to comment!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Related Resources -->
+            {% if related_resources %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-link me-2"></i>Related Resources
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {% for related in related_resources %}
+                            <div class="related-resource mb-3">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'resources:resource_detail' related.pk %}" class="text-decoration-none">
+                                        {{ related.title }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">
+                                    {{ related.get_resource_type_display }} • {{ related.category.name }}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Resource Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Resource Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <small class="text-muted">Type:</small><br>
+                            {{ resource.get_resource_type_display }}
+                        </li>
+                        <li class="mb-2">
+                            <small class="text-muted">Category:</small><br>
+                            {{ resource.category.name }}
+                        </li>
+                        <li class="mb-2">
+                            <small class="text-muted">Study Field:</small><br>
+                            {{ resource.category.study_field.name }}
+                        </li>
+                        <li class="mb-2">
+                            <small class="text-muted">Community:</small><br>
+                            {{ resource.community.name }}
+                        </li>
+                        <li class="mb-2">
+                            <small class="text-muted">Uploaded:</small><br>
+                            {{ resource.created_at|date:"M d, Y" }}
+                        </li>
+                        {% if resource.updated_at != resource.created_at %}
+                            <li class="mb-2">
+                                <small class="text-muted">Updated:</small><br>
+                                {{ resource.updated_at|date:"M d, Y" }}
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-flag me-2"></i>Report Resource
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'resources:resource_report' resource.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="text-muted">Help us maintain quality by reporting inappropriate content.</p>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason for reporting</label>
+                        <select class="form-select" name="reason" required>
+                            <option value="">Select a reason...</option>
+                            <option value="copyright">Copyright Violation</option>
+                            <option value="inappropriate">Inappropriate Content</option>
+                            <option value="spam">Spam</option>
+                            <option value="low_quality">Low Quality</option>
+                            <option value="wrong_category">Wrong Category</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Additional details</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="Please provide more details about the issue..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-flag me-2"></i>Submit Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.stat-item {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+.comment-item:last-child {
+    border-bottom: none !important;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.related-resource:last-child {
+    margin-bottom: 0 !important;
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+</style>
+
+<script>
+function voteResource(resourceId, voteType) {
+    fetch(`/resources/${resourceId}/vote/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: `vote_type=${voteType}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`upvote-count-${resourceId}`).textContent = data.upvotes;
+            document.getElementById(`downvote-count-${resourceId}`).textContent = data.downvotes;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function toggleBookmark(resourceId) {
+    fetch(`/resources/${resourceId}/bookmark/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const icon = document.getElementById(`bookmark-icon-${resourceId}`);
+            const text = document.getElementById(`bookmark-text-${resourceId}`);
+            
+            if (data.is_bookmarked) {
+                icon.className = 'fas fa-bookmark me-2';
+                text.textContent = 'Remove Bookmark';
+            } else {
+                icon.className = 'far fa-bookmark me-2';
+                text.textContent = 'Bookmark';
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %} 

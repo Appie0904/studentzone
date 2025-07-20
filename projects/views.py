@@ -51,15 +51,28 @@ def project_list(request):
 @login_required
 def project_create(request):
     """Create a new project"""
+    print(f"Request method: {request.method}")
+    print(f"Request path: {request.path}")
+    
     if request.method == 'POST':
+        print("POST data received:", request.POST)
+        print("POST data keys:", list(request.POST.keys()))
         form = ProjectForm(request.POST)
+        print("Form is valid:", form.is_valid())
+        
         if form.is_valid():
             project = form.save(commit=False)
             project.creator = request.user
             project.save()
             
+            # Save many-to-many relationships
+            form.save_m2m()
+            
             messages.success(request, 'Project created successfully!')
             return redirect('projects:project_detail', pk=project.pk)
+        else:
+            print("Form errors:", form.errors)
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = ProjectForm()
     

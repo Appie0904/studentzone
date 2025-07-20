@@ -16,6 +16,9 @@ cryptography==41.0.7
 # Image Processing
 Pillow==11.3.0
 
+# Markdown Support
+markdown==3.5.2
+
 # Development and Testing
 # Add these for development:
 # pytest==7.4.3

@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Project Applications - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-users text-primary me-3"></i>
+                Project Applications
+            </h1>
+            <p class="lead text-muted mb-4">
+                Review and manage applications for your projects. Connect with talented students who want to join your team.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{% url 'projects:project_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Projects
+            </a>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    {% if applications %}
+        <div class="row g-4">
+            {% for application in applications %}
+                <div class="col-lg-6">
+                    <div class="card application-card h-100">
+                        <div class="card-body">
+                            <!-- Application Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-3">
+                                        {{ application.applicant.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">{{ application.applicant.get_full_name|default:application.applicant.username }}</h6>
+                                        <small class="text-muted">Applied {{ application.applied_at|timesince }} ago</small>
+                                    </div>
+                                </div>
+                                <div class="application-status">
+                                    {% if application.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif application.status == 'accepted' %}
+                                        <span class="badge bg-success">Accepted</span>
+                                    {% elif application.status == 'rejected' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% elif application.status == 'withdrawn' %}
+                                        <span class="badge bg-secondary">Withdrawn</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Project Info -->
+                            <div class="project-info mb-3">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-project-diagram me-2"></i>{{ application.project.title }}
+                                </h6>
+                                <small class="text-muted">
+                            {% for community in application.project.communities.all %}
+                                {{ community.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                No communities
+                            {% endfor %}
+                        </small>
+                            </div>
+
+                            <!-- Application Preview -->
+                            <div class="application-preview mb-3">
+                                <div class="row text-muted small">
+                                    <div class="col-6">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ application.time_commitment }}
+                                    </div>
+                                    <div class="col-6">
+                                        <i class="fas fa-envelope me-1"></i>
+                                        {{ application.get_preferred_contact_display }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Motivation Preview -->
+                            <div class="motivation-preview mb-3">
+                                <h6 class="mb-2">Motivation</h6>
+                                <p class="text-muted small">
+                                    {{ application.motivation|truncatewords:20 }}
+                                </p>
+                            </div>
+
+                            <!-- Skills Preview -->
+                            <div class="skills-preview mb-3">
+                                <h6 class="mb-2">Skills</h6>
+                                <p class="text-muted small">
+                                    {{ application.skills|truncatewords:15 }}
+                                </p>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'projects:application_detail' application.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye me-2"></i>View Details
+                                </a>
+                                
+                                {% if application.status == 'pending' %}
+                                    <div class="btn-group" role="group">
+                                        <form method="post" action="{% url 'projects:application_accept' application.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success btn-sm" 
+                                                    onclick="return confirm('Accept this application?')">
+                                                <i class="fas fa-check me-1"></i>Accept
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{% url 'projects:application_reject' application.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                    onclick="return confirm('Reject this application?')">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% elif application.status == 'accepted' %}
+                                    <span class="btn btn-success btn-sm disabled">
+                                        <i class="fas fa-check me-1"></i>Accepted
+                                    </span>
+                                {% elif application.status == 'rejected' %}
+                                    <span class="btn btn-outline-danger btn-sm disabled">
+                                        <i class="fas fa-times me-1"></i>Rejected
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Statistics -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Application Statistics</h5>
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ applications.count }}</div>
+                                    <div class="stat-label">Total Applications</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ applications|length|add:"-1"|add:"1" }}</div>
+                                    <div class="stat-label">Pending Review</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-number text-success">
+                                        {{ applications|length|add:"-1"|add:"1" }}
+                                    </div>
+                                    <div class="stat-label">Accepted</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-number text-danger">
+                                        {{ applications|length|add:"-1"|add:"1" }}
+                                    </div>
+                                    <div class="stat-label">Rejected</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-users fa-4x text-muted mb-4"></i>
+                <h3 class="mb-3">No applications yet</h3>
+                <p class="text-muted mb-4">
+                    When students apply to your projects, you'll see their applications here.
+                </p>
+                <a href="{% url 'projects:project_list' %}" class="btn btn-primary">
+                    <i class="fas fa-project-diagram me-2"></i>View Your Projects
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.application-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.application-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-color: var(--primary-color);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.application-status .badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.project-info {
+    border-top: 1px solid var(--bg-tertiary);
+    padding-top: 0.75rem;
+}
+
+.application-preview {
+    background: var(--bg-tertiary);
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.motivation-preview, .skills-preview {
+    border-top: 1px solid var(--bg-tertiary);
+    padding-top: 0.75rem;
+}
+
+.btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-group form {
+    flex: 1;
+}
+
+.btn-group .btn {
+    width: 100%;
+}
+
+.stat-item {
+    padding: 1rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.empty-state {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.empty-state i {
+    opacity: 0.5;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.card {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %} 

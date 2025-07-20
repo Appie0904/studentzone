@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ collection.name }} - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-folder-open text-primary me-3"></i>
+                {{ collection.name }}
+            </h1>
+            <p class="lead text-muted mb-4">
+                {{ collection.description|default:"A curated collection of educational resources." }}
+            </p>
+            <div class="d-flex align-items-center text-muted">
+                <i class="fas fa-user me-2"></i>
+                <span>Created by {{ collection.creator.username }}</span>
+                <span class="mx-2">•</span>
+                <i class="fas fa-calendar me-2"></i>
+                <span>{{ collection.created_at|date:"M d, Y" }}</span>
+                <span class="mx-2">•</span>
+                <i class="fas fa-book me-2"></i>
+                <span>{{ collection.resources.count }} resources</span>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            {% if can_edit %}
+                <a href="{% url 'resources:collection_edit' collection.pk %}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <a href="{% url 'resources:collection_delete' collection.pk %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if collection.resources.exists %}
+        <div class="row g-4">
+            {% for resource in collection.resources.all %}
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card h-100 resource-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="resource-type-badge">
+                                    <span class="badge bg-primary">{{ resource.get_resource_type_display }}</span>
+                                </div>
+                            </div>
+
+                            <h5 class="card-title mb-2">
+                                <a href="{% url 'resources:resource_detail' resource.pk %}" class="text-decoration-none">
+                                    {{ resource.title }}
+                                </a>
+                            </h5>
+                            <div class="card-text text-muted mb-3">
+                                {{ resource.description|truncatewords:15 }}
+                            </div>
+
+                            <div class="resource-meta mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <small class="text-muted">{{ resource.category.name }}</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user text-secondary me-2"></i>
+                                    <small class="text-muted">
+                                        {% if resource.is_anonymous %}
+                                            Anonymous
+                                        {% else %}
+                                            {{ resource.author.username }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'resources:resource_detail' resource.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye me-2"></i>View Resource
+                                </a>
+                                {% if can_edit %}
+                                    <a href="{% url 'resources:collection_remove_resource' collection.pk resource.pk %}" class="btn btn-outline-danger">
+                                        <i class="fas fa-minus me-2"></i>Remove from Collection
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-folder-open fa-4x text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">No resources in this collection</h3>
+            <p class="text-muted mb-4">
+                {% if can_edit %}
+                    Start adding resources to your collection!
+                {% else %}
+                    This collection is empty.
+                {% endif %}
+            </p>
+            {% if can_edit %}
+                <a href="{% url 'resources:resource_list' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Browse Resources
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.resource-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #e9ecef;
+}
+
+.resource-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-title a {
+    color: #212529;
+    text-decoration: none;
+}
+
+.card-title a:hover {
+    color: #0d6efd;
+}
+</style>
+{% endblock %} 

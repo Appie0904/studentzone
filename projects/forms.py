@@ -9,29 +9,37 @@ class ProjectForm(forms.ModelForm):
         model = Project
         fields = [
             'title', 'description', 'project_type', 'status', 
-            'team_size_min', 'team_size_max', 'start_date', 'end_date', 
-            'deadline', 'contact_email', 'external_link', 'meeting_schedule'
+            'communities', 'study_fields', 'universities',
+            'team_size_min', 'team_size_max', 'is_open_to_all',
+            'start_date', 'end_date', 'deadline', 
+            'contact_email', 'external_link', 'meeting_schedule',
+            'is_featured'
         ]
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter project title'
+                'placeholder': 'Enter project title',
+                'required': True
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 5,
-                'placeholder': 'Describe your project...'
+                'placeholder': 'Describe your project...',
+                'required': True
             }),
             'project_type': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'required': True
             }),
             'status': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'required': True
             }),
             'team_size_min': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 1,
-                'max': 20
+                'max': 20,
+                'required': True
             }),
             'team_size_max': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -62,6 +70,24 @@ class ProjectForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Meeting schedule and communication preferences...'
+            }),
+            'communities': forms.SelectMultiple(attrs={
+                'class': 'form-select',
+                'size': 5
+            }),
+            'study_fields': forms.SelectMultiple(attrs={
+                'class': 'form-select',
+                'size': 5
+            }),
+            'universities': forms.SelectMultiple(attrs={
+                'class': 'form-select',
+                'size': 5
+            }),
+            'is_open_to_all': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'is_featured': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
             })
         }
     

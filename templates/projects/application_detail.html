@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Details - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'projects:project_list' %}">Projects</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'projects:application_list' %}">Applications</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Application Details</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Application Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3">
+                                {{ application.applicant.username|first|upper }}
+                            </div>
+                            <div>
+                                <h2 class="h3 mb-1">{{ application.applicant.get_full_name|default:application.applicant.username }}</h2>
+                                <p class="text-muted mb-0">Applied {{ application.applied_at|timesince }} ago</p>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            {% if application.status == 'pending' %}
+                                <span class="badge bg-warning fs-6">Pending Review</span>
+                            {% elif application.status == 'accepted' %}
+                                <span class="badge bg-success fs-6">Accepted</span>
+                            {% elif application.status == 'rejected' %}
+                                <span class="badge bg-danger fs-6">Rejected</span>
+                            {% elif application.status == 'withdrawn' %}
+                                <span class="badge bg-secondary fs-6">Withdrawn</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Project Info -->
+                    <div class="project-info mb-4">
+                        <h5 class="text-primary mb-2">
+                            <i class="fas fa-project-diagram me-2"></i>{{ application.project.title }}
+                        </h5>
+                        <p class="text-muted mb-0">
+                    {% for community in application.project.communities.all %}
+                        {{ community.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No communities
+                    {% endfor %}
+                </p>
+                    </div>
+
+                    <!-- Application Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <h6><i class="fas fa-clock text-primary me-2"></i>Time Commitment</h6>
+                                <p class="text-muted">{{ application.time_commitment }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <h6><i class="fas fa-envelope text-primary me-2"></i>Preferred Contact</h6>
+                                <p class="text-muted">{{ application.get_preferred_contact_display }}</p>
+                                {% if application.contact_info %}
+                                    <p class="text-muted small">{{ application.contact_info }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Content -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Application Details</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Motivation -->
+                    <div class="application-section mb-4">
+                        <h6 class="section-title">
+                            <i class="fas fa-heart text-primary me-2"></i>Motivation
+                        </h6>
+                        <div class="section-content">
+                            {{ application.motivation|linebreaks }}
+                        </div>
+                    </div>
+
+                    <!-- Relevant Experience -->
+                    <div class="application-section mb-4">
+                        <h6 class="section-title">
+                            <i class="fas fa-briefcase text-primary me-2"></i>Relevant Experience
+                        </h6>
+                        <div class="section-content">
+                            {{ application.relevant_experience|linebreaks }}
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="application-section mb-4">
+                        <h6 class="section-title">
+                            <i class="fas fa-tools text-primary me-2"></i>Skills & Expertise
+                        </h6>
+                        <div class="section-content">
+                            {{ application.skills|linebreaks }}
+                        </div>
+                    </div>
+
+                    <!-- Review Information -->
+                    {% if application.reviewed_at %}
+                        <div class="application-section">
+                            <h6 class="section-title">
+                                <i class="fas fa-check-circle text-primary me-2"></i>Review Information
+                            </h6>
+                            <div class="section-content">
+                                <p class="text-muted">
+                                    Reviewed by {{ application.reviewed_by.get_full_name|default:application.reviewed_by.username }} 
+                                    on {{ application.reviewed_at|date:"F d, Y" }}
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Action Buttons -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Actions</h6>
+                    
+                    {% if application.status == 'pending' %}
+                        <div class="d-grid gap-2 mb-3">
+                            <form method="post" action="{% url 'projects:application_accept' application.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success w-100" 
+                                        onclick="return confirm('Accept this application? This will add the applicant to your project team.')">
+                                    <i class="fas fa-check me-2"></i>Accept Application
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'projects:application_reject' application.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger w-100" 
+                                        onclick="return confirm('Reject this application? This action cannot be undone.')">
+                                    <i class="fas fa-times me-2"></i>Reject Application
+                                </button>
+                            </form>
+                        </div>
+                    {% elif application.status == 'accepted' %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            This application has been accepted.
+                        </div>
+                    {% elif application.status == 'rejected' %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle me-2"></i>
+                            This application has been rejected.
+                        </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'projects:application_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Applications
+                        </a>
+                        <a href="{% url 'projects:project_detail' application.project.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-project-diagram me-2"></i>View Project
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applicant Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Applicant Information</h6>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="user-avatar me-3">
+                            {{ application.applicant.username|first|upper }}
+                        </div>
+                        <div>
+                            <h6 class="mb-1">{{ application.applicant.get_full_name|default:application.applicant.username }}</h6>
+                            <small class="text-muted">@{{ application.applicant.username }}</small>
+                        </div>
+                    </div>
+                    <div class="applicant-details">
+                        <div class="detail-row">
+                            <i class="fas fa-envelope text-muted me-2"></i>
+                            <span class="text-muted">{{ application.applicant.email }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fas fa-calendar text-muted me-2"></i>
+                            <span class="text-muted">Member since {{ application.applicant.date_joined|date:"M Y" }}</span>
+                        </div>
+                    </div>
+                    <a href="{% url 'core:profile' %}" class="btn btn-outline-primary btn-sm mt-3 w-100">
+                        <i class="fas fa-user me-2"></i>View Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project Quick Info -->
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Project Information</h6>
+                    <div class="project-quick-info">
+                        <div class="info-item">
+                            <i class="fas fa-project-diagram text-primary me-2"></i>
+                            <span class="text-muted">{{ application.project.get_project_type_display }}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            <span class="text-muted">{{ application.project.team_size_min }}{% if application.project.team_size_max %}-{{ application.project.team_size_max }}{% endif %} members</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar text-primary me-2"></i>
+                            <span class="text-muted">
+                                {% if application.project.deadline %}
+                                    Deadline: {{ application.project.deadline|date:"M d, Y" }}
+                                {% else %}
+                                    No deadline
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            <span class="text-muted">
+                            {% for community in application.project.communities.all %}
+                                {{ community.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                No communities
+                            {% endfor %}
+                        </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--bg-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.project-info {
+    border-top: 1px solid var(--bg-tertiary);
+    padding-top: 1rem;
+}
+
+.detail-item {
+    margin-bottom: 1rem;
+}
+
+.detail-item h6 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.application-section {
+    border-bottom: 1px solid var(--bg-tertiary);
+    padding-bottom: 1.5rem;
+}
+
+.application-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.section-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.section-content {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.applicant-details {
+    border-top: 1px solid var(--bg-tertiary);
+    padding-top: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.project-quick-info {
+    border-top: 1px solid var(--bg-tertiary);
+    padding-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.card {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--bg-tertiary);
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.alert {
+    border: none;
+    border-radius: 12px;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--text-primary);
+    border-left-color: var(--success-color);
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--text-primary);
+    border-left-color: var(--error-color);
+}
+
+.badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %} 

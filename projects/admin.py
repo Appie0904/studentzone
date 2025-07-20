@@ -13,8 +13,8 @@ class ProjectApplicationInline(admin.TabularInline):
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['title', 'creator', 'project_type', 'status', 'community', 'team_size_min', 'team_size_max', 'is_featured', 'created_at']
-    list_filter = ['project_type', 'status', 'is_featured', 'created_at', 'community']
+    list_display = ['title', 'creator', 'project_type', 'status', 'team_size_min', 'team_size_max', 'is_featured', 'created_at']
+    list_filter = ['project_type', 'status', 'is_featured', 'created_at']
     search_fields = ['title', 'description', 'creator__username']
     ordering = ['-created_at']
     inlines = [ProjectMembershipInline, ProjectApplicationInline]

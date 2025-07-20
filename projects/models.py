@@ -31,9 +31,9 @@ class Project(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planning')
     
     # Project details
-    community = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='projects')
-    study_fields = models.ManyToManyField(StudyField, related_name='projects')
-    universities = models.ManyToManyField(University, related_name='projects')
+    communities = models.ManyToManyField(Community, related_name='projects', blank=True)
+    study_fields = models.ManyToManyField(StudyField, related_name='projects', blank=True)
+    universities = models.ManyToManyField(University, related_name='projects', blank=True)
     
     # Team and collaboration
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_projects')

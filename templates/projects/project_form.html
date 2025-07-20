@@ -1,0 +1,491 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="h2 mb-3">
+                    <i class="fas fa-project-diagram text-primary me-3"></i>
+                    {{ title }}
+                </h1>
+                <p class="text-muted">
+                    {% if project %}
+                        Update your project details and settings.
+                    {% else %}
+                        Create a new project to collaborate with students across Dutch universities.
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Project Form -->
+            <div class="card">
+                <div class="card-body p-4">
+                    <!-- Form Errors -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger mb-4">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Please correct the following errors:
+                            </h6>
+                            <ul class="mb-0">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field|title }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <form method="post" class="needs-validation">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Basic Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">
+                                    Project Title <span class="text-danger">*</span>
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.title.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Choose a clear, descriptive title for your project.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    Description <span class="text-danger">*</span>
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.description.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Provide a detailed description of your project goals, requirements, and what you're looking for in team members. <strong>Markdown is supported!</strong> You can use **bold**, *italic*, `code`, lists, and more.</div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.project_type.id_for_label }}" class="form-label">
+                                            Project Type <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.project_type }}
+                                        {% if form.project_type.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.project_type.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.status.id_for_label }}" class="form-label">
+                                            Status <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.status }}
+                                        {% if form.status.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.status.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Community and Fields -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="fas fa-users text-primary me-2"></i>Community & Study Fields</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.communities.id_for_label }}" class="form-label">
+                                    Communities
+                                </label>
+                                {{ form.communities }}
+                                {% if form.communities.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.communities.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Select the communities this project belongs to (hold Ctrl/Cmd to select multiple).</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.study_fields.id_for_label }}" class="form-label">
+                                    Study Fields
+                                </label>
+                                {{ form.study_fields }}
+                                {% if form.study_fields.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.study_fields.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Select relevant study fields for this project (hold Ctrl/Cmd to select multiple).</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.universities.id_for_label }}" class="form-label">
+                                    Universities
+                                </label>
+                                {{ form.universities }}
+                                {% if form.universities.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.universities.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Select universities involved in this project (hold Ctrl/Cmd to select multiple).</div>
+                            </div>
+                        </div>
+
+                        <!-- Team Configuration -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="fas fa-user-friends text-primary me-2"></i>Team Configuration</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.team_size_min.id_for_label }}" class="form-label">
+                                            Minimum Team Size <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.team_size_min }}
+                                        {% if form.team_size_min.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.team_size_min.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.team_size_max.id_for_label }}" class="form-label">
+                                            Maximum Team Size
+                                        </label>
+                                        {{ form.team_size_max }}
+                                        {% if form.team_size_max.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.team_size_max.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <div class="form-text">Leave empty for unlimited team size.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.is_open_to_all }}
+                                    <label class="form-check-label" for="{{ form.is_open_to_all.id_for_label }}">
+                                        Open to All
+                                    </label>
+                                    {% if form.is_open_to_all.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.is_open_to_all.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Allow anyone to join without applying.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="fas fa-calendar text-primary me-2"></i>Timeline</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                            Start Date
+                                        </label>
+                                        {{ form.start_date }}
+                                        {% if form.start_date.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.start_date.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                                            End Date
+                                        </label>
+                                        {{ form.end_date }}
+                                        {% if form.end_date.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.end_date.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.deadline.id_for_label }}" class="form-label">
+                                    Application Deadline
+                                </label>
+                                {{ form.deadline }}
+                                {% if form.deadline.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.deadline.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Set a deadline for applications to join the project.</div>
+                            </div>
+                        </div>
+
+                        <!-- Contact & Communication -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="fas fa-envelope text-primary me-2"></i>Contact & Communication</h5>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.contact_email.id_for_label }}" class="form-label">
+                                    Contact Email
+                                </label>
+                                {{ form.contact_email }}
+                                {% if form.contact_email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.contact_email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Email address for project inquiries.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.external_link.id_for_label }}" class="form-label">
+                                    External Link
+                                </label>
+                                {{ form.external_link }}
+                                {% if form.external_link.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.external_link.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Link to external project resources (GitHub, website, etc.).</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.meeting_schedule.id_for_label }}" class="form-label">
+                                    Meeting Schedule
+                                </label>
+                                {{ form.meeting_schedule }}
+                                {% if form.meeting_schedule.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.meeting_schedule.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Describe when and how the team meets (e.g., "Weekly on Tuesdays at 7 PM via Discord").</div>
+                            </div>
+                        </div>
+
+                        <!-- Visibility -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="fas fa-eye text-primary me-2"></i>Visibility</h5>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.is_featured }}
+                                    <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                        Featured Project
+                                    </label>
+                                    {% if form.is_featured.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.is_featured.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Featured projects appear prominently on the platform.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if project %}Update Project{% else %}Create Project{% endif %}
+                            </button>
+                        </div>
+                        
+
+                    </form>
+                </div>
+            </div>
+            
+
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border: 2px solid var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.card {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.invalid-feedback {
+    color: var(--error-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Custom styling for form fields */
+#id_description {
+    min-height: 120px;
+    resize: vertical;
+}
+
+#id_meeting_schedule {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Multiple select styling */
+select[multiple] {
+    min-height: 120px;
+}
+
+select[multiple] option {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--bg-tertiary);
+}
+
+select[multiple] option:checked {
+    background: var(--primary-color);
+    color: white;
+}
+
+select[multiple] option:hover {
+    background: rgba(79, 70, 229, 0.1);
+}
+</style>
+
+<script>
+// Ensure form submission works properly
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    
+    console.log('Form found:', form);
+    console.log('Submit button found:', submitBtn);
+    
+    // Handle form submission
+    submitBtn.addEventListener('click', function(e) {
+        console.log('Submit button clicked');
+        
+        // Check which fields are invalid
+        const requiredFields = form.querySelectorAll('[required]');
+        console.log('Required fields found:', requiredFields.length);
+        
+        requiredFields.forEach(field => {
+            if (!field.checkValidity()) {
+                console.log('Invalid field:', field.name, 'Value:', field.value);
+            }
+        });
+        
+        console.log('Form validity:', form.checkValidity());
+        
+        if (form.checkValidity()) {
+            console.log('Form is valid, submitting...');
+            form.submit();
+        } else {
+            console.log('Form is invalid, showing validation errors');
+            form.reportValidity();
+        }
+    });
+    
+    // Also listen for form submit event
+    form.addEventListener('submit', function(e) {
+        console.log('Form submit event triggered');
+    });
+});
+</script>
+{% endblock %} 

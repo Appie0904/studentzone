@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete {{ project.title }} - StudentZone{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <div class="delete-icon mb-4">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
+                </div>
+                <h1 class="h2 mb-3">Delete Project</h1>
+                <p class="text-muted">
+                    Are you sure you want to delete this project? This action cannot be undone.
+                </p>
+            </div>
+
+            <!-- Project Info Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="project-icon me-3">
+                            <i class="fas fa-project-diagram fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">{{ project.title }}</h5>
+                            <p class="text-muted mb-0">
+                    {% for community in project.communities.all %}
+                        {{ community.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        No communities
+                    {% endfor %}
+                </p>
+                        </div>
+                        <div class="ms-auto">
+                            <span class="badge bg-primary">{{ project.get_project_type_display }}</span>
+                        </div>
+                    </div>
+                    <p class="text-muted">{{ project.description|truncatewords:30 }}</p>
+                    <div class="row text-muted small">
+                        <div class="col-md-6">
+                            <i class="fas fa-users me-1"></i>
+                            {{ project.memberships.count }} members
+                        </div>
+                        <div class="col-md-6">
+                            <i class="fas fa-calendar me-1"></i>
+                            Created {{ project.created_at|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Alert -->
+            <div class="alert alert-danger mb-4">
+                <h6 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Warning
+                </h6>
+                <p class="mb-2">Deleting this project will permanently remove:</p>
+                <ul class="mb-0">
+                    <li>All project information and description</li>
+                    <li>Team member associations</li>
+                    <li>All applications and their data</li>
+                    <li>Project statistics and engagement data</li>
+                </ul>
+            </div>
+
+            <!-- Confirmation Form -->
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="confirmation" class="form-label">
+                                Type "DELETE" to confirm <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="confirmation" 
+                                name="confirmation" 
+                                placeholder="Type DELETE to confirm"
+                                required
+                                pattern="DELETE"
+                            >
+                            <div class="form-text">
+                                This helps prevent accidental deletions.
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                                <i class="fas fa-trash me-2"></i>Delete Project
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Alternative Actions -->
+            <div class="text-center mt-4">
+                <p class="text-muted mb-3">Instead of deleting, consider:</p>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <a href="{% url 'projects:project_edit' project.pk %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-2"></i>Edit Project
+                    </a>
+                    <a href="{% url 'projects:project_detail' project.pk %}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-eye me-2"></i>View Project
+                    </a>
+                    <a href="{% url 'projects:project_list' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-list me-2"></i>Back to Projects
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.delete-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.project-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-gradient);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.form-control {
+    border: 2px solid var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--error-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.card {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-danger {
+    background: var(--error-color);
+    border-color: var(--error-color);
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.btn-danger:disabled {
+    background: #9ca3af;
+    border-color: #9ca3af;
+    transform: none;
+    box-shadow: none;
+}
+
+.alert {
+    border: none;
+    border-radius: 12px;
+    border-left: 4px solid var(--error-color);
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--text-primary);
+}
+
+.alert-heading {
+    color: var(--error-color);
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmationInput = document.getElementById('confirmation');
+    const deleteBtn = document.getElementById('deleteBtn');
+    
+    confirmationInput.addEventListener('input', function() {
+        if (this.value === 'DELETE') {
+            deleteBtn.disabled = false;
+            deleteBtn.classList.remove('btn-secondary');
+            deleteBtn.classList.add('btn-danger');
+        } else {
+            deleteBtn.disabled = true;
+            deleteBtn.classList.remove('btn-danger');
+            deleteBtn.classList.add('btn-secondary');
+        }
+    });
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (confirmationInput.value !== 'DELETE') {
+            e.preventDefault();
+            alert('Please type "DELETE" to confirm the deletion.');
+        }
+    });
+});
+</script>
+{% endblock %} 
